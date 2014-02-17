@@ -1,4 +1,4 @@
-public class Geo {
+public class GeoCalculator {
     private final static double earthRadius = 6371;
     /**
      * Computes distance between two points on Earth using Haversine formula
