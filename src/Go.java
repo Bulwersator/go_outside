@@ -1,9 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Properties;
 
 public class Go {
     public static void main(String[] args) {
@@ -13,11 +15,43 @@ public class Go {
             }
         });
     }
+    int lat;
+    int lon;
+    JDialog f;
+    public void ShowWarning(String text){
+        JOptionPane.showMessageDialog(f,
+                text,
+                "Ooops",
+                JOptionPane.WARNING_MESSAGE);
+    }
     public Go() {
+        f = new JDialog();
+
+        String settings_filename = "go_outside.settings";
+        File file = new File(settings_filename);
+        try {
+            if(!file.exists()) {
+                Properties p = new Properties();
+                p.setProperty("latitude", "50");
+                p.setProperty("longitude", "19");
+                Writer test = new FileWriter(settings_filename);
+                p.store(test, "settings for go_outside program");
+            } else {
+                Properties q = new Properties();
+                q.load(new FileReader(settings_filename));
+                lat = Integer.parseInt(q.getProperty("latitude"));
+                lon = Integer.parseInt(q.getProperty("longitude"));
+            }
+        } catch (IOException|java.lang.NumberFormatException e) {
+            e.printStackTrace();
+            ShowWarning("Processing of options file failed.");
+            lat = 50;
+            lon = 19;
+        }
+
         Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
         int availableScreenWidth = winSize.width;
         int availableScreenHeight = winSize.height;
-        JDialog f = new JDialog();
         //f.setUndecorated(true);
         f.setResizable(false);
         f.setAlwaysOnTop(true);
@@ -30,6 +64,13 @@ public class Go {
         f.setVisible(true);
 
         class GeohashLoader extends SwingWorker<Geohash, Void> {
+            int lat;
+            int lon;
+            public GeohashLoader(int lat, int lon) {
+                this.lat = lat;
+                this.lon = lon;
+            }
+
             @Override
             public Geohash doInBackground() {
                 final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -39,7 +80,7 @@ public class Go {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                return new Geohash(50, 19, c);
+                return new Geohash(lat, lon, c);
             }
 
             @Override
@@ -53,6 +94,6 @@ public class Go {
             }
         }
 
-        (new GeohashLoader()).execute();
+        (new GeohashLoader(lat, lon)).execute();
     }
 }
