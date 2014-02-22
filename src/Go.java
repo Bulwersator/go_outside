@@ -18,6 +18,11 @@ public class Go {
     int lat;
     int lon;
     JDialog f;
+
+    /**
+     * Displays warning dialog
+     * @param text - message displayed to user
+     */
     public void showWarning(String text){
         JOptionPane.showMessageDialog(f,
                 text,
