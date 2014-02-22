@@ -12,7 +12,7 @@ public class GeoCalculator {
      * @param lon2 longitude of the second point
      * @return Distance between points, in kilometers
      */
-    public static double GetDistanceBetweenCoordinates(double lat1, double lon1, double lat2, double lon2){
+    public static double getDistanceBetweenCoordinates(double lat1, double lon1, double lat2, double lon2){
         lat1 = Math.toRadians(lat1);
         lon1 = Math.toRadians(lon1);
         lat2 = Math.toRadians(lat2);

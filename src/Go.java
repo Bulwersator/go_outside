@@ -18,7 +18,7 @@ public class Go {
     int lat;
     int lon;
     JDialog f;
-    public void ShowWarning(String text){
+    public void showWarning(String text){
         JOptionPane.showMessageDialog(f,
                 text,
                 "Ooops",
@@ -44,7 +44,7 @@ public class Go {
             }
         } catch (IOException|java.lang.NumberFormatException e) {
             e.printStackTrace();
-            ShowWarning("Processing of options file failed.");
+            showWarning("Processing of options file failed.");
             lat = 50;
             lon = 19;
         }
