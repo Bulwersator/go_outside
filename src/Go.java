@@ -62,6 +62,7 @@ public class Go {
         f.setAlwaysOnTop(true);
         final JTextField textField = new JTextField("loading...");
         f.add(textField);
+        f.getContentPane().setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
         f.setMinimumSize(new Dimension(300, 10));
         f.pack();
         //TODO - assumes bottom or right position of system taskbar
