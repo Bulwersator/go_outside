@@ -58,7 +58,7 @@ public class Go {
         int availableScreenWidth = winSize.width;
         int availableScreenHeight = winSize.height;
         //f.setUndecorated(true);
-        f.setResizable(false);
+        //f.setResizable(false);
         f.setAlwaysOnTop(true);
         final JTextField textField = new JTextField("loading...");
         f.add(textField);
