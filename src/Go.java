@@ -60,10 +60,35 @@ public class Go {
         //f.setUndecorated(true);
         //f.setResizable(false);
         f.setAlwaysOnTop(true);
-        final JTextField textField = new JTextField("loading...");
-        f.add(textField);
+        JPanel settings = new JPanel();
+        JLabel latitudeLabel = new JLabel("latitude");
+        JTextField latitudeInput = new JTextField("");
+        JLabel longitudeLabel = new JLabel("longitude");
+        JTextField longitudeInput = new JTextField("");
+        latitudeInput.setColumns(5);
+        longitudeInput.setColumns(5);
+        settings.add(latitudeLabel);
+        settings.add(latitudeInput);
+        settings.add(longitudeLabel);
+        settings.add(longitudeInput);
+        f.add(settings);
+        JPanel hashpoint = new JPanel();
+        hashpoint.setLayout(new BoxLayout(hashpoint, BoxLayout.Y_AXIS));
+        JPanel hashpoint_title_label = new JPanel();
+        hashpoint_title_label.add(new JLabel("hashpoint info"));
+        hashpoint.add(hashpoint_title_label);
+        final JTextArea hashpointInformationPanel = new JTextArea("loading...");
+        hashpointInformationPanel.setLineWrap(true);
+        hashpointInformationPanel.setWrapStyleWord(true);
+        hashpoint.add(hashpointInformationPanel);
+        JPanel buttons = new JPanel();
+        buttons.add(new Button("<"));
+        buttons.add(new Button(">"));
+        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
+        hashpoint.add(buttons);
+        f.add(hashpoint);
         f.getContentPane().setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
-        f.setMinimumSize(new Dimension(300, 10));
+        //f.setMinimumSize(new Dimension(300, 100));
         f.pack();
         //TODO - assumes bottom or right position of system taskbar
         f.setLocation(availableScreenWidth - f.getWidth(), availableScreenHeight - f.getHeight());
@@ -93,10 +118,13 @@ public class Go {
             protected void done() {
                 try {
                     final Geohash test = get();
-                    textField.setText(test.getResult());
+                    hashpointInformationPanel.setText(test.getResult());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                f.validate();
+                f.repaint();
+                f.pack();
             }
         }
 

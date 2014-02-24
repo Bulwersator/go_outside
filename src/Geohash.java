@@ -67,7 +67,7 @@ public class Geohash {
             SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String formatted_date = isoDateFormat.format(geohash_date.getTime());
             DecimalFormat decim = new DecimalFormat("0.0000");
-            result = "hash in " + lat + ", " +lon + " on " + formatted_date + ":\n";
+            result = "graticule " + lat + ", " + lon + " on " + formatted_date + ":\n";
             result += decim.format(hashLat) + " " + decim.format(hashLon);
         }
         return result;
