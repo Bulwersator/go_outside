@@ -1,10 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Properties;
 
 public class Go {
@@ -72,62 +68,17 @@ public class Go {
         settings.add(longitudeLabel);
         settings.add(longitudeInput);
         f.add(settings);
-        JPanel hashpoint = new JPanel();
-        hashpoint.setLayout(new BoxLayout(hashpoint, BoxLayout.Y_AXIS));
-        JPanel hashpoint_title_label = new JPanel();
-        hashpoint_title_label.add(new JLabel("hashpoint info"));
-        hashpoint.add(hashpoint_title_label);
-        final JTextArea hashpointInformationPanel = new JTextArea("loading...");
-        hashpointInformationPanel.setLineWrap(true);
-        hashpointInformationPanel.setWrapStyleWord(true);
-        hashpoint.add(hashpointInformationPanel);
-        JPanel buttons = new JPanel();
-        buttons.add(new Button("<"));
-        buttons.add(new Button(">"));
-        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
-        hashpoint.add(buttons);
-        f.add(hashpoint);
+        f.add(new GeohashDisplayPanel(lat, lon, this));
         f.getContentPane().setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
-        //f.setMinimumSize(new Dimension(300, 100));
+        f.setMinimumSize(new Dimension(300, 100));
         f.pack();
         //TODO - assumes bottom or right position of system taskbar
         f.setLocation(availableScreenWidth - f.getWidth(), availableScreenHeight - f.getHeight());
         f.setVisible(true);
-
-        class GeohashLoader extends SwingWorker<Geohash, Void> {
-            int lat;
-            int lon;
-            public GeohashLoader(int lat, int lon) {
-                this.lat = lat;
-                this.lon = lon;
-            }
-
-            @Override
-            public Geohash doInBackground() {
-                final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                final Calendar c = Calendar.getInstance();
-                try {
-                    c.setTime(df.parse("2005-05-26"));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                return new Geohash(lat, lon, c);
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    final Geohash test = get();
-                    hashpointInformationPanel.setText(test.getResult());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                f.validate();
-                f.repaint();
-                f.pack();
-            }
-        }
-
-        (new GeohashLoader(lat, lon)).execute();
+    }
+    public void updateDisplay(){
+        f.revalidate();
+        f.pack();
+        f.repaint();
     }
 }

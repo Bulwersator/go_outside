@@ -6,7 +6,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class Geohash {
+public class GeohashLogic {
     private boolean failed;
     private boolean generated = false;
     private int lat;
@@ -21,7 +21,7 @@ public class Geohash {
      * @param graticule_lon Longitude of graticule
      * @param geohash_date_param Date of geohash.
      */
-    public Geohash(int graticule_lat, int graticule_lon, Calendar geohash_date_param) {
+    public GeohashLogic(int graticule_lat, int graticule_lon, Calendar geohash_date_param) {
         lat = graticule_lat;
         lon = graticule_lon;
         failed = false;
