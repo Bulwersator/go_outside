@@ -7,36 +7,36 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class GeohashLogic {
-    private boolean failed;
+    private boolean valid;
     private boolean generated = false;
     private int lat;
     private int lon;
     private double hashLat;
     private double hashLon;
-    private Calendar geohash_date;
+    private Calendar geohashDate;
 
     /**
      * Fetches data about hashpoint in specified graticule, on specified date.
-     * @param graticule_lat Latitude of graticule
-     * @param graticule_lon Longitude of graticule
-     * @param geohash_date_param Date of geohash.
+     * @param graticuleLat Latitude of graticule
+     * @param graticuleLon Longitude of graticule
+     * @param geohashDateParam Date of geohash.
      */
-    public GeohashLogic(int graticule_lat, int graticule_lon, Calendar geohash_date_param) {
-        lat = graticule_lat;
-        lon = graticule_lon;
-        failed = false;
-        geohash_date = geohash_date_param;
+    public GeohashLogic(int graticuleLat, int graticuleLon, Calendar geohashDateParam) {
+        lat = graticuleLat;
+        lon = graticuleLon;
+        valid = false;
+        geohashDate = geohashDateParam;
         SimpleDateFormat slashDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        String url = "http://geo.crox.net/djia/"+slashDateFormat.format(geohash_date.getTime());
+        String url = "http://geo.crox.net/djia/"+slashDateFormat.format(geohashDate.getTime());
         String djia = null;
         try {
             djia = Downloader.fetchURL(url);
+            valid = true;
         } catch (IOException e) {
-            failed = true;
         }
 
         SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String formatted_date = isoDateFormat.format(geohash_date.getTime());
+        String formatted_date = isoDateFormat.format(geohashDate.getTime());
         String hash = MD5Tools.MD5hash(formatted_date + "-" + djia);
         hashLat = HexFraction.calculate(hash.substring(0, 16));
         hashLon = HexFraction.calculate(hash.substring(16, 32));
@@ -54,22 +54,40 @@ public class GeohashLogic {
     }
 
     /**
-     * @return Short description of hashpoint.
+     * Allows checking validity of object.
+     * Invalid object may become valid, valid never will become invalid.
+     * @return true for object that may be querried for location of hashpoint, false otherwise
      */
-    String getResult() {
-        String result;
-        if(!generated){
-            return "fetching data";
-        }
-        if(failed){
-            result = "something failed";
-        } else {
-            SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String formatted_date = isoDateFormat.format(geohash_date.getTime());
-            DecimalFormat decim = new DecimalFormat("0.0000");
-            result = "graticule " + lat + ", " + lon + " on " + formatted_date + ":\n";
-            result += decim.format(hashLat) + " " + decim.format(hashLon);
-        }
-        return result;
+    boolean isValid() {
+        return valid;
+    }
+
+    /**
+     * Allows checking whatever object finished attempts to acquire necessary data.
+     * Not generated object may become generated, generated never will become not generated.
+     * @return true for object that will not change value returned by isValid() function, false otherwise
+     */
+    boolean isGenerated(){
+        return generated;
+    }
+
+    public int getLat() {
+        return lat;
+    }
+
+    public int getLon() {
+        return lon;
+    }
+
+    public double getHashLat() {
+        return hashLat;
+    }
+
+    public double getHashLon() {
+        return hashLon;
+    }
+
+    public Calendar getGeohashDate() {
+        return geohashDate;
     }
 }
