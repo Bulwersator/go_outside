@@ -20,7 +20,7 @@ public class GenericGeohashLogic {
 
     /**
      * Returns djia opening value for given day obtained from website serving this data for geohashing purposes
-     * @param date date of djia opening
+     * @param date date of djia opening (valid for past dates within reasonable range)
      * @return djia opening data
      * @throws IOException for days with unavailable data and in case of connection problems
      */
