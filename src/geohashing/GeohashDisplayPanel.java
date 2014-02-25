@@ -1,6 +1,5 @@
 package geohashing;
 
-import hack.Go;
 import utils.FormatLibrary;
 
 import javax.swing.*;
@@ -12,7 +11,6 @@ import java.util.Calendar;
 public class GeohashDisplayPanel extends JPanel implements ActionListener {
     final int lat;
     final int lon;
-    final Go parent;
     final Calendar date;
     final HashpointInfoArea hashpointInformationPanel;
     final JProgressBar progressBar;
@@ -49,11 +47,9 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
             this.setText(result);
         }
     }
-    public GeohashDisplayPanel(final int lat, final int lon, final Go parent) {
+    public GeohashDisplayPanel(final int lat, final int lon) {
         this.date = Calendar.getInstance();
         this.progressBar = new JProgressBar();
-        this.parent = parent;//passing parent here is probably terrible hack and should be fixed (TODO)
-        //note that it is passed only to trigger repainting window
         this.lat = lat;
         this.lon = lon;
 
@@ -107,7 +103,6 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
                 final GenericGeohashLogic test = get();
                 hashpointInformationPanel.updateGeohashData(test);
                 progressBar.setIndeterminate(false);
-                parent.updateDisplay();
             } catch (Exception e) {
                 e.printStackTrace();
             }

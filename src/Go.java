@@ -1,5 +1,3 @@
-package hack;
-
 import geohashing.GeohashDisplayPanel;
 
 import javax.swing.*;
@@ -80,17 +78,12 @@ public class Go extends JDialog {
         f.add(locationSettings);
         f.add(rangeSettings);
         f.add(new JSeparator());
-        f.add(new GeohashDisplayPanel(lat, lon, this));
+        f.add(new GeohashDisplayPanel(lat, lon));
         f.getContentPane().setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
         f.setMinimumSize(new Dimension(300, 100));
         f.pack();
         //TODO - assumes bottom or right position of system taskbar
         f.setLocation(availableScreenWidth - f.getWidth(), availableScreenHeight - f.getHeight());
         f.setVisible(true);
-    }
-    public void updateDisplay(){
-        f.revalidate();
-        f.pack();
-        f.repaint();
     }
 }
