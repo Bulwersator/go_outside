@@ -17,11 +17,18 @@ public class GenericGeohashLogic {
     private double hashLon;
     private Calendar geohashDate;
 
+    /**
+     * Returns djia opening value for given day obtained from website serving this data for geohashing purposes
+     * @param date date of djia opening
+     * @return djia opening data
+     * @throws IOException for days with unavailable data and in case of connection problems
+     */
     protected String fetchMarketData(Calendar date) throws IOException {
         SimpleDateFormat slashDateFormat = new SimpleDateFormat("yyyy/MM/dd");
         String url = "http://geo.crox.net/djia/"+slashDateFormat.format(date.getTime());
         return Downloader.fetchURL(url);
     }
+
     /**
      * Fetches data about hashpoint in specified graticule, on specified date.
      * @param graticuleLat Latitude of graticule
