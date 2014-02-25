@@ -9,12 +9,12 @@ import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 
 public class GeohashDisplayPanel extends JPanel implements ActionListener {
-    final int lat;
-    final int lon;
+    int lat;
+    int lon;
     DateTime date;
-    final HashpointInfoArea hashpointInformationPanel;
-    final JProgressBar progressBar;
-    final HashpointInfoArea globalhashInformationPanel;
+    HashpointInfoArea hashpointInformationPanel;
+    JProgressBar progressBar;
+    HashpointInfoArea globalhashInformationPanel;
 
     private abstract class GenericHashPoint extends JTextArea {
         GenericGeohashLogic data;
@@ -47,7 +47,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
             this.setText(result);
         }
     }
-    public GeohashDisplayPanel(final int lat, final int lon) {
+    public GeohashDisplayPanel(int lat, int lon) {
         this.date = new DateTime();
         this.progressBar = new JProgressBar();
         this.lat = lat;
@@ -100,7 +100,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
         @Override
         protected void done() {
             try {
-                final GenericGeohashLogic test = get();
+                GenericGeohashLogic test = get();
                 hashpointInformationPanel.updateGeohashData(test);
                 progressBar.setIndeterminate(false);
             } catch (Exception e) {
