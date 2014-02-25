@@ -4,7 +4,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 public class FormatLibrary {
-    static public SimpleDateFormat simpleDate(){
+    static public SimpleDateFormat ISODate(){
         //ISO standard, this format is also needed by geohashing algorithm
         return new SimpleDateFormat("yyyy-MM-dd");
     }

@@ -25,7 +25,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
         }
         protected boolean setNewData(GenericGeohashLogic newData) {
             this.data = newData;
-            String formatted_date = FormatLibrary.simpleDate().format(this.data.getGeohashDate().getTime());
+            String formatted_date = FormatLibrary.ISODate().format(this.data.getGeohashDate().getTime());
             if (!newData.isValid()) {
                 this.setText("acquiring Dow Jones Industrial Average data for " + formatted_date + " failed");
                 return false;
@@ -39,7 +39,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
             if(!this.setNewData(newData)) {
                 return;
             }
-            String formatted_date = FormatLibrary.simpleDate().format(this.data.getGeohashDate().getTime());
+            String formatted_date = FormatLibrary.ISODate().format(this.data.getGeohashDate().getTime());
             String result;
             DecimalFormat decim = FormatLibrary.geographicCoordinate();
             result = "graticule " + this.data.getLat() + ", " + this.data.getLon() + " on " + formatted_date + ":\n";

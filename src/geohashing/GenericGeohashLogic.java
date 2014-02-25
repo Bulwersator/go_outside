@@ -3,20 +3,25 @@ package geohashing;
 import net.exclaimindustries.tools.HexFraction;
 import net.exclaimindustries.tools.MD5Tools;
 import utils.Downloader;
+import utils.FormatLibrary;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class GenericGeohashLogic {
-    private boolean valid;
-    private boolean generated = false;
+    private boolean valid = false;
     private int lat;
     private int lon;
     private double hashLat;
     private double hashLon;
     private Calendar geohashDate;
 
+    protected String fetchMarketData(Calendar date) throws IOException {
+        SimpleDateFormat slashDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        String url = "http://geo.crox.net/djia/"+slashDateFormat.format(date.getTime());
+        return Downloader.fetchURL(url);
+    }
     /**
      * Fetches data about hashpoint in specified graticule, on specified date.
      * @param graticuleLat Latitude of graticule
@@ -26,20 +31,16 @@ public class GenericGeohashLogic {
     public GenericGeohashLogic(int graticuleLat, int graticuleLon, Calendar geohashDateParam) {
         lat = graticuleLat;
         lon = graticuleLon;
-        valid = false;
         geohashDate = geohashDateParam;
-        SimpleDateFormat slashDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        String url = "http://geo.crox.net/djia/"+slashDateFormat.format(geohashDate.getTime());
-        String djia = null;
+        String djia;
         try {
-            djia = Downloader.fetchURL(url);
-            valid = true;
+            djia = fetchMarketData(geohashDate);
         } catch (IOException e) {
-            valid = false;
+            e.printStackTrace();
+            return;
         }
 
-        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String formatted_date = isoDateFormat.format(geohashDate.getTime());
+        String formatted_date = FormatLibrary.ISODate().format(geohashDate.getTime());
         String hash = MD5Tools.MD5hash(formatted_date + "-" + djia);
         hashLat = HexFraction.calculate(hash.substring(0, 16));
         hashLon = HexFraction.calculate(hash.substring(16, 32));
@@ -53,7 +54,7 @@ public class GenericGeohashLogic {
         } else {
             hashLon = lon + hashLon;
         }
-        generated = true;
+        valid = true;
     }
 
     /**
@@ -63,15 +64,6 @@ public class GenericGeohashLogic {
      */
     boolean isValid() {
         return valid;
-    }
-
-    /**
-     * Allows checking whatever object finished attempts to acquire necessary data.
-     * Not generated object may become generated, generated never will become not generated.
-     * @return true for object that will not change value returned by isValid() function, false otherwise
-     */
-    boolean isGenerated(){
-        return generated;
     }
 
     public int getLat() {
