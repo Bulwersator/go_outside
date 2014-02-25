@@ -1,12 +1,14 @@
 package utils;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 
 public class FormatLibrary {
-    static public SimpleDateFormat ISODate(){
+    static public DateTimeFormatter ISODate(){
         //ISO standard, this format is also needed by geohashing algorithm
-        return new SimpleDateFormat("yyyy-MM-dd");
+        return DateTimeFormat.forPattern("yyyy-MM-dd");
     }
     static public DecimalFormat geographicCoordinate(){
         //overprecision is not needed, this presents location with accuracy (<6m) comparable to GPS data

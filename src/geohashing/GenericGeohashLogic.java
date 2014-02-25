@@ -2,12 +2,13 @@ package geohashing;
 
 import net.exclaimindustries.tools.HexFraction;
 import net.exclaimindustries.tools.MD5Tools;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import utils.Downloader;
 import utils.FormatLibrary;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 public class GenericGeohashLogic {
     private boolean valid = false;
@@ -15,7 +16,7 @@ public class GenericGeohashLogic {
     private int lon;
     private double hashLat;
     private double hashLon;
-    private Calendar geohashDate;
+    private DateTime geohashDate;
 
     /**
      * Returns djia opening value for given day obtained from website serving this data for geohashing purposes
@@ -23,9 +24,9 @@ public class GenericGeohashLogic {
      * @return djia opening data
      * @throws IOException for days with unavailable data and in case of connection problems
      */
-    protected String fetchMarketData(Calendar date) throws IOException {
-        SimpleDateFormat slashDateFormat = new SimpleDateFormat("yyyy/MM/dd");
-        String url = "http://geo.crox.net/djia/"+slashDateFormat.format(date.getTime());
+    protected String fetchMarketData(DateTime date) throws IOException {
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/MM/dd");
+        String url = "http://geo.crox.net/djia/"+date.toString(fmt);
         return Downloader.fetchURL(url);
     }
 
@@ -35,16 +36,16 @@ public class GenericGeohashLogic {
      * @param graticuleLon Longitude of graticule
      * @param geohashDateParam Date of geohash.
      */
-    public GenericGeohashLogic(int graticuleLat, int graticuleLon, Calendar geohashDateParam) {
+    public GenericGeohashLogic(int graticuleLat, int graticuleLon, DateTime geohashDateParam) {
         lat = graticuleLat;
         lon = graticuleLon;
-        geohashDate = geohashDateParam;
+        geohashDate = new DateTime(geohashDateParam);
         String djia;
+        DateTime introductionDateOfTimeZoneRule = new DateTime(2008, 5, 27, 0, 0);
         try {
-            if(lon > -30){ //30W Time Zone Rule
-                Calendar dijaDate = Calendar.getInstance();
-                dijaDate.setTime(geohashDate.getTime());
-                dijaDate.add(Calendar.DAY_OF_YEAR, -1);
+            if(lon > -30 && introductionDateOfTimeZoneRule.isBefore(geohashDate)){ //30W Time Zone Rule
+                DateTime dijaDate = new DateTime(geohashDate);
+                dijaDate = dijaDate.minusDays(1);
                 djia = fetchMarketData(dijaDate);
             } else {
                 djia = fetchMarketData(geohashDate);
@@ -54,8 +55,9 @@ public class GenericGeohashLogic {
             return;
         }
 
-        String formatted_date = FormatLibrary.ISODate().format(geohashDate.getTime());
-        String hash = MD5Tools.MD5hash(formatted_date + "-" + djia);
+        String formattedDate = geohashDate.toString(FormatLibrary.ISODate());
+        String hashed = formattedDate + "-" + djia;
+        String hash = MD5Tools.MD5hash(hashed);
         hashLat = HexFraction.calculate(hash.substring(0, 16));
         hashLon = HexFraction.calculate(hash.substring(16, 32));
         if(lat<0){
@@ -96,7 +98,7 @@ public class GenericGeohashLogic {
         return hashLon;
     }
 
-    public Calendar getGeohashDate() {
+    public DateTime getGeohashDate() {
         return geohashDate;
     }
 }

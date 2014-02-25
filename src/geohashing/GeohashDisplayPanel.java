@@ -1,17 +1,17 @@
 package geohashing;
 
+import org.joda.time.DateTime;
 import utils.FormatLibrary;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
-import java.util.Calendar;
 
 public class GeohashDisplayPanel extends JPanel implements ActionListener {
     final int lat;
     final int lon;
-    final Calendar date;
+    DateTime date;
     final HashpointInfoArea hashpointInformationPanel;
     final JProgressBar progressBar;
     final HashpointInfoArea globalhashInformationPanel;
@@ -25,9 +25,9 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
         }
         protected boolean setNewData(GenericGeohashLogic newData) {
             this.data = newData;
-            String formatted_date = FormatLibrary.ISODate().format(this.data.getGeohashDate().getTime());
+            String formattedDate = this.data.getGeohashDate().toString(FormatLibrary.ISODate());
             if (!newData.isValid()) {
-                this.setText("acquiring Dow Jones Industrial Average data for " + formatted_date + " failed");
+                this.setText("acquiring Dow Jones Industrial Average data for " + formattedDate + " failed");
                 return false;
             }
             return true;
@@ -39,16 +39,16 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
             if(!this.setNewData(newData)) {
                 return;
             }
-            String formatted_date = FormatLibrary.ISODate().format(this.data.getGeohashDate().getTime());
+            String formattedDate = this.data.getGeohashDate().toString(FormatLibrary.ISODate());
             String result;
             DecimalFormat decim = FormatLibrary.geographicCoordinate();
-            result = "graticule " + this.data.getLat() + ", " + this.data.getLon() + " on " + formatted_date + ":\n";
+            result = "graticule " + this.data.getLat() + ", " + this.data.getLon() + " on " + formattedDate + ":\n";
             result += decim.format(this.data.getHashLat()) + " " + decim.format(this.data.getHashLon());
             this.setText(result);
         }
     }
     public GeohashDisplayPanel(final int lat, final int lon) {
-        this.date = Calendar.getInstance();
+        this.date = new DateTime();
         this.progressBar = new JProgressBar();
         this.lat = lat;
         this.lon = lon;
@@ -82,10 +82,10 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals("<")) {
-            date.add(Calendar.DAY_OF_YEAR, -1);
+            date = date.minusDays(1);
             (new GeohashLoader()).execute();
         } else if(e.getActionCommand().equals(">")) {
-            date.add(Calendar.DAY_OF_YEAR, 1);
+            date = date.plusDays(1);
             (new GeohashLoader()).execute();
         }
 
