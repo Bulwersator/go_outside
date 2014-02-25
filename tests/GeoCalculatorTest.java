@@ -1,3 +1,5 @@
+import utils.GeoCalculator;
+
 import static org.junit.Assert.*;
 
 public class GeoCalculatorTest {

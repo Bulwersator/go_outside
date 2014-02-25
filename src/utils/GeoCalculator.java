@@ -1,3 +1,5 @@
+package utils;
+
 public class GeoCalculator {
     private final static double earthRadius = 6371;
     /**

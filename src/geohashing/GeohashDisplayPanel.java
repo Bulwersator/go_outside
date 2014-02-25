@@ -1,3 +1,8 @@
+package geohashing;
+
+import hack.Go;
+import utils.FormatLibrary;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,13 +19,13 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
     final HashpointInfoArea globalhashInformationPanel;
 
     private abstract class GenericHashPoint extends JTextArea {
-        GeohashLogic data;
+        GenericGeohashLogic data;
         private GenericHashPoint() {
             setLineWrap(true);
             setWrapStyleWord(true);
             setRows(2);
         }
-        protected boolean setNewData(GeohashLogic newData) {
+        protected boolean setNewData(GenericGeohashLogic newData) {
             this.data = newData;
             String formatted_date = FormatLibrary.simpleDate().format(this.data.getGeohashDate().getTime());
             if (!newData.isValid()) {
@@ -32,7 +37,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
 
     }
     private class HashpointInfoArea extends GenericHashPoint{
-        public void updateGeohashData(GeohashLogic newData) {
+        public void updateGeohashData(GenericGeohashLogic newData) {
             if(!this.setNewData(newData)) {
                 return;
             }
@@ -90,16 +95,16 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
 
     }
 
-    class GeohashLoader extends SwingWorker<GeohashLogic, Void> {
+    class GeohashLoader extends SwingWorker<GenericGeohashLogic, Void> {
         @Override
-        public GeohashLogic doInBackground() {
+        public GenericGeohashLogic doInBackground() {
             progressBar.setIndeterminate(true);
-            return new GeohashLogic(lat, lon, date);
+            return new GenericGeohashLogic(lat, lon, date);
         }
         @Override
         protected void done() {
             try {
-                final GeohashLogic test = get();
+                final GenericGeohashLogic test = get();
                 hashpointInformationPanel.updateGeohashData(test);
                 progressBar.setIndeterminate(false);
                 parent.updateDisplay();

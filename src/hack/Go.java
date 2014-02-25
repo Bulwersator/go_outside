@@ -1,9 +1,13 @@
+package hack;
+
+import geohashing.GeohashDisplayPanel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.util.Properties;
 
-public class Go {
+public class Go extends JDialog {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
