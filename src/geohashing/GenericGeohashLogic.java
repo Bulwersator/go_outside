@@ -34,7 +34,14 @@ public class GenericGeohashLogic {
         geohashDate = geohashDateParam;
         String djia;
         try {
-            djia = fetchMarketData(geohashDate);
+            if(lon > -30){ //30W Time Zone Rule
+                Calendar dijaDate = Calendar.getInstance();
+                dijaDate.setTime(geohashDate.getTime());
+                dijaDate.add(Calendar.DAY_OF_YEAR, -1);
+                djia = fetchMarketData(dijaDate);
+            } else {
+                djia = fetchMarketData(geohashDate);
+            }
         } catch (IOException e) {
             e.printStackTrace();
             return;
