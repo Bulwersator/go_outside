@@ -5,18 +5,18 @@ import net.exclaimindustries.tools.MD5Tools;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import utils.Coordinate;
 import utils.Downloader;
 import utils.FormatLibrary;
 
 import java.io.IOException;
 
-public class GenericGeohashLogic {
-    private boolean valid = false;
-    private int lat;
-    private int lon;
-    private double hashLat;
-    private double hashLon;
-    private DateTime geohashDate;
+public abstract class GenericGeohashLogic {
+    protected boolean valid = false;
+    protected int lat;
+    protected int lon;
+    protected Coordinate result;
+    protected DateTime geohashDate;
 
     /**
      * Returns djia opening value for given day obtained from website serving this data for geohashing purposes
@@ -24,12 +24,34 @@ public class GenericGeohashLogic {
      * @return djia opening data
      * @throws IOException for days with unavailable data and in case of connection problems
      */
-    protected String fetchMarketData(DateTime date) throws IOException {
+    protected static String fetchMarketData(DateTime date) throws IOException {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/MM/dd");
         String url = "http://geo.crox.net/djia/"+date.toString(fmt);
         return Downloader.fetchURL(url);
     }
 
+    protected static boolean isDateAfterTimeZoneRuleChange(DateTime checkedDate){
+        DateTime introductionDateOfTimeZoneRule = new DateTime(2008, 5, 27, 0, 0);
+        return introductionDateOfTimeZoneRule.isEqual(checkedDate) || introductionDateOfTimeZoneRule.isBefore(checkedDate);
+    }
+    protected abstract boolean useMarketDataFromPreviousDay();
+
+    protected final Coordinate obtainRawHashesForLatLon() throws IOException {
+        String djia;
+        if(this.useMarketDataFromPreviousDay()){
+            DateTime dijaDate = new DateTime(this.geohashDate);
+            dijaDate = dijaDate.minusDays(1);
+            djia = fetchMarketData(dijaDate);
+        } else {
+            djia = fetchMarketData(this.geohashDate);
+        }
+        String formattedDate = this.geohashDate.toString(FormatLibrary.ISODate());
+        String hashed = formattedDate + "-" + djia;
+        String hash = MD5Tools.MD5hash(hashed);
+        double hashLat = HexFraction.calculate(hash.substring(0, 16));
+        double hashLon = HexFraction.calculate(hash.substring(16, 32));
+        return new Coordinate(hashLat, hashLon);
+    }
     /**
      * Fetches data about hashpoint in specified graticule, on specified date.
      * @param graticuleLat Latitude of graticule
@@ -37,68 +59,51 @@ public class GenericGeohashLogic {
      * @param geohashDateParam Date of geohash.
      */
     public GenericGeohashLogic(int graticuleLat, int graticuleLon, DateTime geohashDateParam) {
-        lat = graticuleLat;
-        lon = graticuleLon;
-        geohashDate = new DateTime(geohashDateParam);
-        String djia;
-        DateTime introductionDateOfTimeZoneRule = new DateTime(2008, 5, 27, 0, 0);
+        this.lat = graticuleLat;
+        this.lon = graticuleLon;
+        this.geohashDate = new DateTime(geohashDateParam);
+        Coordinate rawHashCoordinates;
         try {
-            if(lon > -30 && introductionDateOfTimeZoneRule.isBefore(geohashDate)){ //30W Time Zone Rule
-                DateTime dijaDate = new DateTime(geohashDate);
-                dijaDate = dijaDate.minusDays(1);
-                djia = fetchMarketData(dijaDate);
-            } else {
-                djia = fetchMarketData(geohashDate);
-            }
+            rawHashCoordinates = this.obtainRawHashesForLatLon();
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
-
-        String formattedDate = geohashDate.toString(FormatLibrary.ISODate());
-        String hashed = formattedDate + "-" + djia;
-        String hash = MD5Tools.MD5hash(hashed);
-        hashLat = HexFraction.calculate(hash.substring(0, 16));
-        hashLon = HexFraction.calculate(hash.substring(16, 32));
-        if(lat<0){
-            hashLat = lat - hashLat;
-        } else {
-            hashLat = lat + hashLat;
-        }
-        if(lon<0){
-            hashLon = lon - hashLon;
-        } else {
-            hashLon = lon + hashLon;
-        }
-        valid = true;
+        this.result = new Coordinate();
+        this.processExistingData(rawHashCoordinates);
+        this.valid = true;
     }
+
+    protected abstract void processExistingData(Coordinate rawHashCoordinates);
+
+    public abstract String generateDescription();
 
     /**
      * Allows checking validity of object.
      * Invalid object may become valid, valid never will become invalid.
      * @return true for object that may be querried for location of hashpoint, false otherwise
      */
-    boolean isValid() {
-        return valid;
+    public final boolean isValid() {
+        return this.valid;
     }
 
-    public int getLat() {
-        return lat;
+    public int getGraticuleLat() {
+        return this.lat;
     }
 
-    public int getLon() {
-        return lon;
+    public int getGraticuleLon() {
+        return this.lon;
     }
 
-    public double getHashLat() {
-        return hashLat;
+    public final double getHashLat() {
+        return this.result.lat;
     }
 
-    public double getHashLon() {
-        return hashLon;
+    public final double getHashLon() {
+        return this.result.lon;
     }
 
-    public DateTime getGeohashDate() {
-        return geohashDate;
+    public final DateTime getGeohashDate() {
+        return this.geohashDate;
     }
 }

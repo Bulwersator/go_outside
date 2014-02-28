@@ -6,7 +6,6 @@ import utils.FormatLibrary;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
 
 public class GeohashDisplayPanel extends JPanel implements ActionListener {
     int lat;
@@ -19,9 +18,9 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
     private abstract class GenericHashPoint extends JTextArea {
         GenericGeohashLogic data;
         private GenericHashPoint() {
-            setLineWrap(true);
-            setWrapStyleWord(true);
-            setRows(2);
+            this.setLineWrap(true);
+            this.setWrapStyleWord(true);
+            this.setRows(2);
         }
         protected boolean setNewData(GenericGeohashLogic newData) {
             this.data = newData;
@@ -39,32 +38,27 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
             if(!this.setNewData(newData)) {
                 return;
             }
-            String formattedDate = this.data.getGeohashDate().toString(FormatLibrary.ISODate());
-            String result;
-            DecimalFormat decim = FormatLibrary.geographicCoordinate();
-            result = "graticule " + this.data.getLat() + ", " + this.data.getLon() + " on " + formattedDate + ":\n";
-            result += decim.format(this.data.getHashLat()) + " " + decim.format(this.data.getHashLon());
-            this.setText(result);
+            this.setText(this.data.generateDescription());
         }
     }
-    public GeohashDisplayPanel(int lat, int lon) {
+    public GeohashDisplayPanel(int latPara, int lonPara) {
         this.date = new DateTime();
         this.progressBar = new JProgressBar();
-        this.lat = lat;
-        this.lon = lon;
+        this.lat = latPara;
+        this.lon = lonPara;
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         JPanel hashpoint_title_label = new JPanel();
         hashpoint_title_label.add(new JLabel("hashpoint info"));
         this.hashpointInformationPanel = new HashpointInfoArea();
         this.add(hashpoint_title_label);
-        this.add(hashpointInformationPanel);
+        this.add(this.hashpointInformationPanel);
 
         JPanel globalhashTitleLabel = new JPanel();
         globalhashTitleLabel.add(new JLabel("globalhash info"));
         this.globalhashInformationPanel = new HashpointInfoArea();
         this.add(globalhashTitleLabel);
-        this.add(globalhashInformationPanel);
+        this.add(this.globalhashInformationPanel);
 
         JPanel buttons = new JPanel();
         JButton previous = new JButton("<");
@@ -75,34 +69,44 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
         buttons.add(next);
         buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
         this.add(buttons);
-        (new GeohashLoader()).execute();
-        this.add(progressBar);
+        (new GeohashLoader(new StandardGeohashFactory(), this.hashpointInformationPanel)).execute();
+        (new GeohashLoader(new GlobalhashFactory(), this.globalhashInformationPanel)).execute();
+        this.add(this.progressBar);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals("<")) {
-            date = date.minusDays(1);
-            (new GeohashLoader()).execute();
+            this.date = this.date.minusDays(1);
         } else if(e.getActionCommand().equals(">")) {
-            date = date.plusDays(1);
-            (new GeohashLoader()).execute();
+            this.date = this.date.plusDays(1);
         }
+        (new GeohashLoader(new StandardGeohashFactory(), this.hashpointInformationPanel)).execute();
+        (new GeohashLoader(new GlobalhashFactory(), this.globalhashInformationPanel)).execute();
 
     }
 
     class GeohashLoader extends SwingWorker<GenericGeohashLogic, Void> {
+        GeohashFactory generator;
+        HashpointInfoArea target;
+        GeohashLoader(GeohashFactory generatorPara, HashpointInfoArea targetPara){
+            this.generator = generatorPara;
+            this.target = targetPara;
+        }
+
         @Override
         public GenericGeohashLogic doInBackground() {
-            progressBar.setIndeterminate(true);
-            return new GenericGeohashLogic(lat, lon, date);
+            GeohashDisplayPanel.this.progressBar.setIndeterminate(true);
+            int graticuleLatitude = GeohashDisplayPanel.this.lat;
+            int graticuleLongitude = GeohashDisplayPanel.this.lat;
+            return this.generator.makeGeohash(graticuleLatitude, graticuleLongitude, GeohashDisplayPanel.this.date);
         }
         @Override
         protected void done() {
             try {
-                GenericGeohashLogic test = get();
-                hashpointInformationPanel.updateGeohashData(test);
-                progressBar.setIndeterminate(false);
+                GenericGeohashLogic test = this.get();
+                this.target.updateGeohashData(test);
+                GeohashDisplayPanel.this.progressBar.setIndeterminate(false);
             } catch (Exception e) {
                 e.printStackTrace();
             }
