@@ -15,9 +15,9 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
     JProgressBar progressBar;
     HashpointInfoArea globalhashInformationPanel;
 
-    private abstract class GenericHashPoint extends JTextArea {
+    private class HashpointInfoArea extends JTextArea {
         GenericGeohashLogic data;
-        private GenericHashPoint() {
+        public HashpointInfoArea() {
             this.setLineWrap(true);
             this.setWrapStyleWord(true);
             this.setRows(2);
@@ -31,9 +31,6 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
             }
             return true;
         }
-
-    }
-    private class HashpointInfoArea extends GenericHashPoint{
         public void updateGeohashData(GenericGeohashLogic newData) {
             if(!this.setNewData(newData)) {
                 return;
