@@ -40,8 +40,8 @@ public class Go extends JDialog {
         try {
             if(!file.exists()) {
                 Properties p = new Properties();
-                p.setProperty("latitude", "50");
-                p.setProperty("longitude", "19");
+                p.setProperty("latitude", Double.toString(lat));
+                p.setProperty("longitude", Double.toString(lon));
                 p.setProperty("distance", Double.toString(this.maxDistance));
                 Writer test = new FileWriter(settings_filename);
                 p.store(test, "settings for go_outside program");
