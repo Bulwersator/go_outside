@@ -22,13 +22,13 @@ public class Go extends JDialog {
      * @param text - message displayed to user
      */
     public void showWarning(String text){
-        JOptionPane.showMessageDialog(f,
+        JOptionPane.showMessageDialog(this.f,
                 text,
                 "Ooops",
                 JOptionPane.WARNING_MESSAGE);
     }
     public Go() {
-        f = new JDialog();
+        this.f = new JDialog();
 
         String settings_filename = "go_outside.settings";
         File file = new File(settings_filename);
@@ -42,14 +42,14 @@ public class Go extends JDialog {
             } else {
                 Properties q = new Properties();
                 q.load(new FileReader(settings_filename));
-                lat = Integer.parseInt(q.getProperty("latitude"));
-                lon = Integer.parseInt(q.getProperty("longitude"));
+                this.lat = Integer.parseInt(q.getProperty("latitude"));
+                this.lon = Integer.parseInt(q.getProperty("longitude"));
             }
         } catch (IOException|java.lang.NumberFormatException e) {
             e.printStackTrace();
-            showWarning("Processing of options file failed.");
-            lat = 50;
-            lon = 19;
+            this.showWarning("Processing of options file failed.");
+            this.lat = 50;
+            this.lon = 19;
         }
 
         Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
@@ -57,7 +57,7 @@ public class Go extends JDialog {
         int availableScreenHeight = winSize.height;
         //f.setUndecorated(true);
         //f.setResizable(false);
-        f.setAlwaysOnTop(true);
+        this.f.setAlwaysOnTop(true);
         JPanel locationSettings = new JPanel();
         JLabel latitudeLabel = new JLabel("latitude");
         JTextField latitudeInput = new JTextField("");
@@ -75,15 +75,15 @@ public class Go extends JDialog {
         rangeInput.setColumns(5);
         rangeSettings.add(rangeLabel);
         rangeSettings.add(rangeInput);
-        f.add(locationSettings);
-        f.add(rangeSettings);
-        f.add(new JSeparator());
-        f.add(new GeohashDisplayPanel(lat, lon));
-        f.getContentPane().setLayout(new BoxLayout(f.getContentPane(), BoxLayout.Y_AXIS));
-        f.setMinimumSize(new Dimension(300, 100));
-        f.pack();
+        this.f.add(locationSettings);
+        this.f.add(rangeSettings);
+        this.f.add(new JSeparator());
+        this.f.add(new GeohashDisplayPanel(this.lat, this.lon));
+        this.f.getContentPane().setLayout(new BoxLayout(this.f.getContentPane(), BoxLayout.Y_AXIS));
+        this.f.setMinimumSize(new Dimension(300, 100));
+        this.f.pack();
         //TODO - assumes bottom or right position of system taskbar
-        f.setLocation(availableScreenWidth - f.getWidth(), availableScreenHeight - f.getHeight());
-        f.setVisible(true);
+        this.f.setLocation(availableScreenWidth - this.f.getWidth(), availableScreenHeight - this.f.getHeight());
+        this.f.setVisible(true);
     }
 }
