@@ -1,4 +1,6 @@
 import geohashing.GeohashDisplayPanel;
+import utils.Coordinate;
+import utils.FormatLibrary;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,8 +15,8 @@ public class Go extends JDialog {
             }
         });
     }
-    int lat;
-    int lon;
+    Coordinate location;
+    double maxDistance;
     JDialog f;
 
     /**
@@ -32,24 +34,30 @@ public class Go extends JDialog {
 
         String settings_filename = "go_outside.settings";
         File file = new File(settings_filename);
+        double lat = 0;
+        double lon = 0;
+        this.maxDistance = 40;
         try {
             if(!file.exists()) {
                 Properties p = new Properties();
                 p.setProperty("latitude", "50");
                 p.setProperty("longitude", "19");
+                p.setProperty("distance", Double.toString(this.maxDistance));
                 Writer test = new FileWriter(settings_filename);
                 p.store(test, "settings for go_outside program");
             } else {
                 Properties q = new Properties();
                 q.load(new FileReader(settings_filename));
-                this.lat = Integer.parseInt(q.getProperty("latitude"));
-                this.lon = Integer.parseInt(q.getProperty("longitude"));
+                lat = Double.parseDouble(q.getProperty("latitude"));
+                lon = Double.parseDouble(q.getProperty("longitude"));
+                this.maxDistance = Double.parseDouble(q.getProperty("distance"));
+                this.location = new Coordinate(lat, lon);
             }
-        } catch (IOException|java.lang.NumberFormatException e) {
+        } catch (IOException|java.lang.NumberFormatException|java.lang.NullPointerException e) {
             e.printStackTrace();
             this.showWarning("Processing of options file failed.");
-            this.lat = 50;
-            this.lon = 19;
+        } finally {
+            this.location = new Coordinate(lat, lon);
         }
 
         Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
@@ -60,9 +68,9 @@ public class Go extends JDialog {
         this.f.setAlwaysOnTop(true);
         JPanel locationSettings = new JPanel();
         JLabel latitudeLabel = new JLabel("latitude");
-        JTextField latitudeInput = new JTextField("");
+        JTextField latitudeInput = new JTextField(FormatLibrary.geographicCoordinate().format(this.location.lat));
         JLabel longitudeLabel = new JLabel("longitude");
-        JTextField longitudeInput = new JTextField("");
+        JTextField longitudeInput = new JTextField(FormatLibrary.geographicCoordinate().format(this.location.lon));
         latitudeInput.setColumns(5);
         longitudeInput.setColumns(5);
         locationSettings.add(latitudeLabel);
@@ -71,14 +79,14 @@ public class Go extends JDialog {
         locationSettings.add(longitudeInput);
         JPanel rangeSettings = new JPanel();
         JLabel rangeLabel = new JLabel("range [km]");
-        JTextField rangeInput = new JTextField("");
+        JTextField rangeInput = new JTextField(Double.toString(this.maxDistance));
         rangeInput.setColumns(5);
         rangeSettings.add(rangeLabel);
         rangeSettings.add(rangeInput);
         this.f.add(locationSettings);
         this.f.add(rangeSettings);
         this.f.add(new JSeparator());
-        this.f.add(new GeohashDisplayPanel(this.lat, this.lon));
+        this.f.add(new GeohashDisplayPanel(this.location, this.maxDistance));
         this.f.getContentPane().setLayout(new BoxLayout(this.f.getContentPane(), BoxLayout.Y_AXIS));
         this.f.setMinimumSize(new Dimension(300, 100));
         this.f.pack();

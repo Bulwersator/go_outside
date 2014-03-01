@@ -1,15 +1,19 @@
 package geohashing;
 
 import org.joda.time.DateTime;
+import utils.Coordinate;
 import utils.FormatLibrary;
+import utils.GeoCalculator;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GeohashDisplayPanel extends JPanel implements ActionListener {
-    int lat;
-    int lon;
+    private final Coordinate observerLocation;
+    private final double maxDistance;
+    int graticuleLat;
+    int graticuleLon;
     DateTime date;
     HashpointInfoArea hashpointInformationPanel;
     JProgressBar progressBar;
@@ -20,7 +24,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
         public HashpointInfoArea() {
             this.setLineWrap(true);
             this.setWrapStyleWord(true);
-            this.setRows(2);
+            this.setRows(4);
         }
         protected boolean setNewData(GenericGeohashLogic newData) {
             this.data = newData;
@@ -35,14 +39,24 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
             if(!this.setNewData(newData)) {
                 return;
             }
-            this.setText(this.data.generateDescription());
+            String baseDescription = this.data.generateDescription();
+            String distanceDescription = "distance: ";
+            Double distance = GeoCalculator.getDistanceBetweenCoordinates(this.data.getHashCoordinate(), GeohashDisplayPanel.this.observerLocation);
+            distanceDescription += Math.round(distance);
+            distanceDescription += " km";
+            if(GeohashDisplayPanel.this.maxDistance > distance){
+                distanceDescription += "\nwithin range of " + GeohashDisplayPanel.this.maxDistance + " km";
+            }
+            this.setText(baseDescription + "\n" + distanceDescription);
         }
     }
-    public GeohashDisplayPanel(int latPara, int lonPara) {
+    public GeohashDisplayPanel(Coordinate observerLocationParam, double maxDistanceParam) {
         this.date = new DateTime();
         this.progressBar = new JProgressBar();
-        this.lat = latPara;
-        this.lon = lonPara;
+        this.observerLocation = observerLocationParam;
+        this.graticuleLat = (int) Math.round(this.observerLocation.lat);
+        this.graticuleLon = (int) Math.round(this.observerLocation.lon);
+        this.maxDistance = maxDistanceParam;
 
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         JPanel hashpoint_title_label = new JPanel();
@@ -94,8 +108,8 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
         @Override
         public GenericGeohashLogic doInBackground() {
             GeohashDisplayPanel.this.progressBar.setIndeterminate(true);
-            int graticuleLatitude = GeohashDisplayPanel.this.lat;
-            int graticuleLongitude = GeohashDisplayPanel.this.lon;
+            int graticuleLatitude = GeohashDisplayPanel.this.graticuleLat;
+            int graticuleLongitude = GeohashDisplayPanel.this.graticuleLon;
             return this.generator.makeGeohash(graticuleLatitude, graticuleLongitude, GeohashDisplayPanel.this.date);
         }
         @Override

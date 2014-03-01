@@ -2,6 +2,9 @@ package utils;
 
 public class GeoCalculator {
     private final static double earthRadius = 6371;
+    public static double getDistanceBetweenCoordinates(Coordinate loc1, Coordinate loc2){
+        return getDistanceBetweenCoordinates(loc1.lat, loc1.lon, loc2.lat, loc2.lon);
+    }
     /**
      * Computes distance between two points on Earth using Haversine formula
      *

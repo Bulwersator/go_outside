@@ -103,6 +103,10 @@ public abstract class GenericGeohashLogic {
         return this.result.lon;
     }
 
+    public final Coordinate getHashCoordinate() {
+        return this.result;
+    }
+
     public final DateTime getGeohashDate() {
         return this.geohashDate;
     }
