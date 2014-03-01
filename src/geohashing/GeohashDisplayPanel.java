@@ -95,7 +95,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
         public GenericGeohashLogic doInBackground() {
             GeohashDisplayPanel.this.progressBar.setIndeterminate(true);
             int graticuleLatitude = GeohashDisplayPanel.this.lat;
-            int graticuleLongitude = GeohashDisplayPanel.this.lat;
+            int graticuleLongitude = GeohashDisplayPanel.this.lon;
             return this.generator.makeGeohash(graticuleLatitude, graticuleLongitude, GeohashDisplayPanel.this.date);
         }
         @Override
