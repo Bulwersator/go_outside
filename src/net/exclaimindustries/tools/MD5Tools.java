@@ -46,8 +46,7 @@ public class MD5Tools {
      * Hashes a string through the MD5 algorithm. If something goes wrong with
      * getting an MD5 instance, this returns an empty string.
      *
-     * @param input
-     *            String object to hash
+     * @param input String object to hash
      * @return the MD5 hash of the input
      */
     public static String MD5hash(String input) {

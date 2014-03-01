@@ -15,20 +15,23 @@ public class Go extends JDialog {
             }
         });
     }
+
     Coordinate location;
     double maxDistance;
     JDialog f;
 
     /**
      * Displays warning dialog
+     *
      * @param text - message displayed to user
      */
-    public void showWarning(String text){
+    public void showWarning(String text) {
         JOptionPane.showMessageDialog(this.f,
                 text,
                 "Ooops",
                 JOptionPane.WARNING_MESSAGE);
     }
+
     public Go() {
         this.f = new JDialog();
 
@@ -38,7 +41,7 @@ public class Go extends JDialog {
         double lon = 0;
         this.maxDistance = 40;
         try {
-            if(!file.exists()) {
+            if (!file.exists()) {
                 Properties p = new Properties();
                 p.setProperty("latitude", Double.toString(lat));
                 p.setProperty("longitude", Double.toString(lon));
@@ -53,7 +56,7 @@ public class Go extends JDialog {
                 this.maxDistance = Double.parseDouble(q.getProperty("distance"));
                 this.location = new Coordinate(lat, lon);
             }
-        } catch (IOException|java.lang.NumberFormatException|java.lang.NullPointerException e) {
+        } catch (IOException | java.lang.NumberFormatException | java.lang.NullPointerException e) {
             e.printStackTrace();
             this.showWarning("Processing of options file failed.");
         } finally {

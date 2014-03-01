@@ -18,16 +18,17 @@ public class StandardGeohash extends GenericGeohashLogic {
         super(graticuleLat, graticuleLon, geohashDateParam);
     }
 
-    protected boolean useMarketDataFromPreviousDay(){
+    protected boolean useMarketDataFromPreviousDay() {
         return this.lon > -30 && isDateAfterTimeZoneRuleChange(this.geohashDate);
     }
-    protected void processExistingData(Coordinate rawHashCoordinates){
-        if(this.lat<0){
+
+    protected void processExistingData(Coordinate rawHashCoordinates) {
+        if (this.lat < 0) {
             this.result.lat = this.lat - rawHashCoordinates.lat;
         } else {
             this.result.lat = this.lat + rawHashCoordinates.lat;
         }
-        if(this.lon<0){
+        if (this.lon < 0) {
             this.result.lon = this.lon - rawHashCoordinates.lon;
         } else {
             this.result.lon = this.lon + rawHashCoordinates.lon;

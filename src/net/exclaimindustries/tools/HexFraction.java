@@ -42,11 +42,9 @@ public class HexFraction {
      * Converts a string, presumably the fractional part of a hex number, into
      * its fractional decimal counterpart. Don't feed it a negative.
      *
-     * @param s
-     *            the hex string to convert
+     * @param s the hex string to convert
      * @return a float value of the hex string
-     * @throws NumberFormatException
-     *             parsing error with the string
+     * @throws NumberFormatException parsing error with the string
      */
     public static double calculate(String s) throws NumberFormatException {
         // We're dealing with values to the precision of 1/(16^16). I think

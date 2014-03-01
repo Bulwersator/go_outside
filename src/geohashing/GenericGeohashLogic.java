@@ -20,25 +20,27 @@ public abstract class GenericGeohashLogic {
 
     /**
      * Returns djia opening value for given day obtained from website serving this data for geohashing purposes
+     *
      * @param date date of djia opening (valid for past dates within reasonable range)
      * @return djia opening data
      * @throws IOException for days with unavailable data and in case of connection problems
      */
     protected static String fetchMarketData(DateTime date) throws IOException {
         DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy/MM/dd");
-        String url = "http://geo.crox.net/djia/"+date.toString(fmt);
+        String url = "http://geo.crox.net/djia/" + date.toString(fmt);
         return Downloader.fetchURL(url);
     }
 
-    protected static boolean isDateAfterTimeZoneRuleChange(DateTime checkedDate){
+    protected static boolean isDateAfterTimeZoneRuleChange(DateTime checkedDate) {
         DateTime introductionDateOfTimeZoneRule = new DateTime(2008, 5, 27, 0, 0);
         return introductionDateOfTimeZoneRule.isEqual(checkedDate) || introductionDateOfTimeZoneRule.isBefore(checkedDate);
     }
+
     protected abstract boolean useMarketDataFromPreviousDay();
 
     protected final Coordinate obtainRawHashesForLatLon() throws IOException {
         String djia;
-        if(this.useMarketDataFromPreviousDay()){
+        if (this.useMarketDataFromPreviousDay()) {
             DateTime dijaDate = new DateTime(this.geohashDate);
             dijaDate = dijaDate.minusDays(1);
             djia = fetchMarketData(dijaDate);
@@ -52,10 +54,12 @@ public abstract class GenericGeohashLogic {
         double hashLon = HexFraction.calculate(hash.substring(16, 32));
         return new Coordinate(hashLat, hashLon);
     }
+
     /**
      * Fetches data about hashpoint in specified graticule, on specified date.
-     * @param graticuleLat Latitude of graticule
-     * @param graticuleLon Longitude of graticule
+     *
+     * @param graticuleLat     Latitude of graticule
+     * @param graticuleLon     Longitude of graticule
      * @param geohashDateParam Date of geohash.
      */
     public GenericGeohashLogic(int graticuleLat, int graticuleLon, DateTime geohashDateParam) {
@@ -81,6 +85,7 @@ public abstract class GenericGeohashLogic {
     /**
      * Allows checking validity of object.
      * Invalid object may become valid, valid never will become invalid.
+     *
      * @return true for object that may be querried for location of hashpoint, false otherwise
      */
     public final boolean isValid() {

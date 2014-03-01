@@ -40,15 +40,14 @@ public class CharToByte {
     /**
      * Converts the specified array of chars to an array of bytes.
      *
-     * @param chars
-     *            char array to convert
+     * @param chars char array to convert
      * @return an array of bytes
      */
     public static byte[] charsToBytes(char[] chars) {
         byte[] bytes = new byte[chars.length];
         int i;
         for (i = 0; i < chars.length; i++) {
-            bytes[i] = (byte)(chars[i] & 0xFF);
+            bytes[i] = (byte) (chars[i] & 0xFF);
         }
         return bytes;
     }
@@ -57,8 +56,7 @@ public class CharToByte {
      * Converts the specified array of bytes to a String. The String will
      * consist of the hex digits of the byte array.
      *
-     * @param bytes
-     *            bytes to convert
+     * @param bytes bytes to convert
      * @return a String of hex digits
      */
     public static String bytesToString(byte[] bytes) {
@@ -83,16 +81,15 @@ public class CharToByte {
      * array will be half as long as the byte array, since chars are 2 bytes
      * each.
      *
-     * @param bytes
-     *            bytes to convert
+     * @param bytes bytes to convert
      * @return a char array of hex digits
      */
     public static char[] bytesToChars(byte[] bytes) {
         char[] chars = new char[bytes.length / 2];
         for (int b = 0, c = 0; b < bytes.length; b += 2, c++) {
-            int b1 = (int)bytes[b] & 0xFF;
-            int b2 = (int)bytes[b + 1] & 0xFF;
-            chars[c] = (char)((b1 << 8) + b2);
+            int b1 = (int) bytes[b] & 0xFF;
+            int b2 = (int) bytes[b + 1] & 0xFF;
+            chars[c] = (char) ((b1 << 8) + b2);
         }
         return chars;
     }

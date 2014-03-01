@@ -12,35 +12,37 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Downloader {
     static Map<URL, String> cache = null;
     static Map<URL, DateTime> downloadInProgress = null;
+
     /**
      * Downloads specified resource
+     *
      * @param url Uniform resource locator
      * @return Dowloaded text
      * @throws IOException On failed download.
      */
     public static String fetchURL(String url) throws IOException {
         URL address = new URL(url);
-        if(cache == null){
+        if (cache == null) {
             cache = new ConcurrentHashMap<>();
         }
-        if(downloadInProgress == null){
+        if (downloadInProgress == null) {
             downloadInProgress = new ConcurrentHashMap<>();
         }
-        if(cache.containsKey(address)){
+        if (cache.containsKey(address)) {
             return cache.get(address);
         }
-        if(downloadInProgress.containsKey(address)){
-            while (true){
-                if(downloadInProgress.get(address).isBefore(DateTime.now().minusMinutes(1))){
+        if (downloadInProgress.containsKey(address)) {
+            while (true) {
+                if (downloadInProgress.get(address).isBefore(DateTime.now().minusMinutes(1))) {
                     downloadInProgress.remove(address);
                     break;
                 }
-                if(cache.containsKey(address)){
+                if (cache.containsKey(address)) {
                     return cache.get(address);
                 }
                 try {
                     Thread.sleep(100);
-                } catch(InterruptedException ex) {
+                } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
             }
@@ -53,7 +55,7 @@ public class Downloader {
         String inputLine;
         String result = "";
         while ((inputLine = in.readLine()) != null) {
-            result +=inputLine;
+            result += inputLine;
         }
         in.close();
         cache.put(address, result);
