@@ -1,7 +1,10 @@
 package utils;
 
-public class GeoCalculator {
-    private final static double earthRadius = 6371;
+public final class GeoCalculator {
+    private static final double EARTH_RADIUS = 6371;
+
+    private GeoCalculator() {
+    }
 
     public static double getDistanceBetweenCoordinates(Coordinate loc1, Coordinate loc2) {
         return getDistanceBetweenCoordinates(loc1.lat, loc1.lon, loc2.lat, loc2.lon);
@@ -31,6 +34,6 @@ public class GeoCalculator {
         a = Math.sin(dLat / 2) * Math.sin(dLat / 2);
         a += Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat2) * Math.cos(lat1);
         double angularDistanceInRadians = Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return 2 * earthRadius * angularDistanceInRadians;
+        return 2 * EARTH_RADIUS * angularDistanceInRadians;
     }
 }

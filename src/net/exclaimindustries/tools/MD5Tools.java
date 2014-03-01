@@ -34,13 +34,16 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * <code>MD5Tools</code> consists of a helper method for the common gruntwork
+ * {@code MD5Tools} consists of a helper method for the common gruntwork
  * tasks commonly associated with MD5 hashing. Most common of these would be the
  * hashing of a simple string.
  *
  * @author Nicholas Killewald
  */
-public class MD5Tools {
+public final class MD5Tools {
+
+    private MD5Tools() {
+    }
 
     /**
      * Hashes a string through the MD5 algorithm. If something goes wrong with
@@ -54,7 +57,7 @@ public class MD5Tools {
 
         try {
             diggy = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException ignored) {
             // No, seriously, if this fails, we're all doomed.
             return "";
         }

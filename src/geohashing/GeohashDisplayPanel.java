@@ -8,27 +8,29 @@ import utils.GeoCalculator;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutionException;
 
 public class GeohashDisplayPanel extends JPanel implements ActionListener {
     private final Coordinate observerLocation;
     private final double maxDistance;
-    int graticuleLat;
-    int graticuleLon;
-    DateTime date;
-    HashpointInfoArea hashpointInformationPanel;
-    JProgressBar progressBar;
-    HashpointInfoArea globalhashInformationPanel;
+    private int graticuleLat;
+    private int graticuleLon;
+    private DateTime date;
+    private HashpointInfoArea hashpointInformationPanel;
+    private JProgressBar progressBar;
+    private HashpointInfoArea globalhashInformationPanel;
 
     private class HashpointInfoArea extends JTextArea {
         GenericGeohashLogic data;
 
-        public HashpointInfoArea() {
+        HashpointInfoArea() {
             this.setLineWrap(true);
             this.setWrapStyleWord(true);
             this.setRows(4);
+            this.data = null;
         }
 
-        protected boolean setNewData(GenericGeohashLogic newData) {
+        boolean setNewData(GenericGeohashLogic newData) {
             this.data = newData;
             String formattedDate = this.data.getGeohashDate().toString(FormatLibrary.ISODate());
             if (!newData.isValid()) {
@@ -48,9 +50,10 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
             distanceDescription += Math.round(distance);
             distanceDescription += " km";
             if (GeohashDisplayPanel.this.maxDistance > distance) {
-                distanceDescription += "\nwithin range of " + GeohashDisplayPanel.this.maxDistance + " km";
+                distanceDescription += System.lineSeparator();
+                distanceDescription += "within range of " + GeohashDisplayPanel.this.maxDistance + " km";
             }
-            this.setText(baseDescription + "\n" + distanceDescription);
+            this.setText(baseDescription + System.lineSeparator() + distanceDescription);
         }
     }
 
@@ -62,11 +65,11 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
         this.graticuleLon = (int) Math.round(this.observerLocation.lon);
         this.maxDistance = maxDistanceParam;
 
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        JPanel hashpoint_title_label = new JPanel();
-        hashpoint_title_label.add(new JLabel("hashpoint info"));
+        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        JPanel hashpointTitleLabel = new JPanel();
+        hashpointTitleLabel.add(new JLabel("hashpoint info"));
         this.hashpointInformationPanel = new HashpointInfoArea();
-        this.add(hashpoint_title_label);
+        this.add(hashpointTitleLabel);
         this.add(this.hashpointInformationPanel);
 
         JPanel globalhashTitleLabel = new JPanel();
@@ -82,7 +85,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
         JButton next = new JButton(">");
         next.addActionListener(this);
         buttons.add(next);
-        buttons.setLayout(new BoxLayout(buttons, BoxLayout.X_AXIS));
+        buttons.setLayout(new BoxLayout(buttons, BoxLayout.LINE_AXIS));
         this.add(buttons);
         (new GeohashLoader(new StandardGeohashFactory(), this.hashpointInformationPanel)).execute();
         (new GeohashLoader(new GlobalhashFactory(), this.globalhashInformationPanel)).execute();
@@ -91,9 +94,9 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals("<")) {
+        if ("<".equals(e.getActionCommand())) {
             this.date = this.date.minusDays(1);
-        } else if (e.getActionCommand().equals(">")) {
+        } else if (">".equals(e.getActionCommand())) {
             this.date = this.date.plusDays(1);
         }
         (new GeohashLoader(new StandardGeohashFactory(), this.hashpointInformationPanel)).execute();
@@ -124,7 +127,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
                 GenericGeohashLogic test = this.get();
                 this.target.updateGeohashData(test);
                 GeohashDisplayPanel.this.progressBar.setIndeterminate(false);
-            } catch (Exception e) {
+            } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
         }

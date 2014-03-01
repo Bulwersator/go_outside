@@ -10,12 +10,12 @@ public class Globalhash extends GenericGeohashLogic {
     /**
      * Fetches data about globalhash on specified date.
      *
-     * @param graticuleLat   ignored parameter as there is a single globalhash on a given day
-     * @param graticuleLon   ignored parameter as there is a single globalhash on a given day
-     * @param globalhashDate Date of globalhash.
+     * @param graticuleLatParam ignored parameter as there is a single globalhash on a given day
+     * @param graticuleLonParam ignored parameter as there is a single globalhash on a given day
+     * @param globalhashDate    Date of globalhash.
      */
     @SuppressWarnings("UnusedParameters")
-    public Globalhash(int graticuleLat, int graticuleLon, DateTime globalhashDate) {
+    public Globalhash(int graticuleLatParam, int graticuleLonParam, DateTime globalhashDate) {
         this(globalhashDate);
     }
 
@@ -28,32 +28,37 @@ public class Globalhash extends GenericGeohashLogic {
         super(0, 0, globalhashDate);
     }
 
-    protected boolean useMarketDataFromPreviousDay() {
+    @Override
+    protected boolean shouldUseDowFromPreviousDay() {
         return true;
     }
 
+    @Override
     protected void processExistingData(Coordinate rawHashCoordinates) {
-        this.result.lat = 180 * rawHashCoordinates.lat - 90;
-        this.result.lon = 360 * rawHashCoordinates.lon - 180;
+        double lat, lon;
+        lat = 180 * rawHashCoordinates.lat - 90;
+        lon = 360 * rawHashCoordinates.lon - 180;
+        this.generatedLocation = new Coordinate(lat, lon);
     }
 
     @Override
     public String generateDescription() {
         String formattedDate = this.getGeohashDate().toString(FormatLibrary.ISODate());
-        String result;
         DecimalFormat decim = FormatLibrary.geographicCoordinate();
-        result = "globalhash on " + formattedDate + ":\n";
+        String result;
+        result = "globalhash on " + formattedDate + ":";
+        result += System.lineSeparator();
         result += decim.format(this.getHashLat()) + " " + decim.format(this.getHashLon());
         return result;
     }
 
     @Override
     public int getGraticuleLat() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Globalhash has no specific graticule");
     }
 
     @Override
     public int getGraticuleLon() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Globalhash has no specific graticule");
     }
 }

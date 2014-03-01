@@ -3,6 +3,7 @@ package geohashing;
 import net.exclaimindustries.tools.HexFraction;
 import net.exclaimindustries.tools.MD5Tools;
 import org.joda.time.DateTime;
+import org.joda.time.ReadableInstant;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import utils.Coordinate;
@@ -10,13 +11,14 @@ import utils.Downloader;
 import utils.FormatLibrary;
 
 import java.io.IOException;
+import java.io.Serializable;
 
-public abstract class GenericGeohashLogic {
-    protected boolean valid = false;
-    protected int lat;
-    protected int lon;
-    protected Coordinate result;
-    protected DateTime geohashDate;
+public abstract class GenericGeohashLogic implements Serializable {
+    private boolean valid;
+    int graticuleLat;
+    int graticuleLon;
+    Coordinate generatedLocation;
+    DateTime geohashDate;
 
     /**
      * Returns djia opening value for given day obtained from website serving this data for geohashing purposes
@@ -31,16 +33,16 @@ public abstract class GenericGeohashLogic {
         return Downloader.fetchURL(url);
     }
 
-    protected static boolean isDateAfterTimeZoneRuleChange(DateTime checkedDate) {
-        DateTime introductionDateOfTimeZoneRule = new DateTime(2008, 5, 27, 0, 0);
-        return introductionDateOfTimeZoneRule.isEqual(checkedDate) || introductionDateOfTimeZoneRule.isBefore(checkedDate);
+    static boolean isDateAfterTimeZoneRuleChange(ReadableInstant checkedDate) {
+        ReadableInstant timeZoneRuleIntroduction = new DateTime(2008, 5, 27, 0, 0);
+        return timeZoneRuleIntroduction.isEqual(checkedDate) || timeZoneRuleIntroduction.isBefore(checkedDate);
     }
 
-    protected abstract boolean useMarketDataFromPreviousDay();
+    protected abstract boolean shouldUseDowFromPreviousDay();
 
-    protected final Coordinate obtainRawHashesForLatLon() throws IOException {
+    private Coordinate obtainRawHashesForLatLon() throws IOException {
         String djia;
-        if (this.useMarketDataFromPreviousDay()) {
+        if (this.shouldUseDowFromPreviousDay()) {
             DateTime dijaDate = new DateTime(this.geohashDate);
             dijaDate = dijaDate.minusDays(1);
             djia = fetchMarketData(dijaDate);
@@ -58,13 +60,14 @@ public abstract class GenericGeohashLogic {
     /**
      * Fetches data about hashpoint in specified graticule, on specified date.
      *
-     * @param graticuleLat     Latitude of graticule
-     * @param graticuleLon     Longitude of graticule
-     * @param geohashDateParam Date of geohash.
+     * @param graticuleLatParam Latitude of graticule
+     * @param graticuleLonParam Longitude of graticule
+     * @param geohashDateParam  Date of geohash.
      */
-    public GenericGeohashLogic(int graticuleLat, int graticuleLon, DateTime geohashDateParam) {
-        this.lat = graticuleLat;
-        this.lon = graticuleLon;
+    GenericGeohashLogic(int graticuleLatParam, int graticuleLonParam, DateTime geohashDateParam) {
+        this.graticuleLat = graticuleLatParam;
+        this.graticuleLon = graticuleLonParam;
+        this.generatedLocation = null;
         this.geohashDate = new DateTime(geohashDateParam);
         Coordinate rawHashCoordinates;
         try {
@@ -73,7 +76,6 @@ public abstract class GenericGeohashLogic {
             e.printStackTrace();
             return;
         }
-        this.result = new Coordinate();
         this.processExistingData(rawHashCoordinates);
         this.valid = true;
     }
@@ -92,24 +94,24 @@ public abstract class GenericGeohashLogic {
         return this.valid;
     }
 
-    public int getGraticuleLat() {
-        return this.lat;
+    int getGraticuleLat() {
+        return this.graticuleLat;
     }
 
-    public int getGraticuleLon() {
-        return this.lon;
+    int getGraticuleLon() {
+        return this.graticuleLon;
     }
 
     public final double getHashLat() {
-        return this.result.lat;
+        return this.generatedLocation.lat;
     }
 
     public final double getHashLon() {
-        return this.result.lon;
+        return this.generatedLocation.lon;
     }
 
     public final Coordinate getHashCoordinate() {
-        return this.result;
+        return this.generatedLocation;
     }
 
     public final DateTime getGeohashDate() {

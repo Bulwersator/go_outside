@@ -37,7 +37,10 @@ import java.math.BigDecimal;
  *
  * @author Nicholas Killewald
  */
-public class HexFraction {
+public final class HexFraction {
+    private HexFraction() {
+    }
+
     /**
      * Converts a string, presumably the fractional part of a hex number, into
      * its fractional decimal counterpart. Don't feed it a negative.
@@ -46,7 +49,7 @@ public class HexFraction {
      * @return a float value of the hex string
      * @throws NumberFormatException parsing error with the string
      */
-    public static double calculate(String s) throws NumberFormatException {
+    public static double calculate(String s) {
         // We're dealing with values to the precision of 1/(16^16). I think
         // BigDecimal is quite called for in this case.
         BigDecimal curvalue = new BigDecimal(0);

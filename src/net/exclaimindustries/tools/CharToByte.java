@@ -31,12 +31,15 @@ package net.exclaimindustries.tools;
 
 /**
  * <p>
- * Static methods that convert <code>byte</code> arrays to <code>char</code>
+ * Static methods that convert {@code byte} arrays to {@code char}
  * arrays and vice versa.
  * </p>
  */
 
-public class CharToByte {
+final class CharToByte {
+    private CharToByte() {
+    }
+
     /**
      * Converts the specified array of chars to an array of bytes.
      *
@@ -45,9 +48,8 @@ public class CharToByte {
      */
     public static byte[] charsToBytes(char[] chars) {
         byte[] bytes = new byte[chars.length];
-        int i;
-        for (i = 0; i < chars.length; i++) {
-            bytes[i] = (byte) (chars[i] & 0xFF);
+        for (int i = 0; i < chars.length; i++) {
+            bytes[i] = (byte) ((int) chars[i] & 0xFF);
         }
         return bytes;
     }
@@ -61,13 +63,11 @@ public class CharToByte {
      */
     public static String bytesToString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
-        String s;
-        int i;
-        for (i = 0; i < bytes.length; i++) {
-            if (i % 32 == 0 && i != 0) {
-                sb.append("\n");
+        for (int i = 0; i < bytes.length; i++) {
+            if (((i % 32) == 0) && (i != 0)) {
+                sb.append(System.lineSeparator());
             }
-            s = Integer.toHexString(bytes[i]);
+            String s = Integer.toHexString(bytes[i]);
             if (s.length() < 2) {
                 s = "0" + s;
             }

@@ -9,9 +9,28 @@ import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Downloader {
-    static Map<URL, String> cache = null;
-    static Map<URL, DateTime> downloadInProgress = null;
+public final class Downloader {
+    private static Map<String, String> cache = null;
+    private static Map<String, DateTime> downloadInProgress = null;
+
+    private Downloader() {
+    }
+
+    private static void avoidDuplicateDownloads(String url) {
+        if (downloadInProgress.containsKey(url)) {
+            while (downloadInProgress.get(url).isAfter(DateTime.now().minusMinutes(1))) {
+                if (cache.containsKey(url)) {
+                    return;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            downloadInProgress.remove(url);
+        }
+    }
 
     /**
      * Downloads specified resource
@@ -21,44 +40,32 @@ public class Downloader {
      * @throws IOException On failed download.
      */
     public static String fetchURL(String url) throws IOException {
-        URL address = new URL(url);
-        if (cache == null) {
-            cache = new ConcurrentHashMap<>();
-        }
-        if (downloadInProgress == null) {
-            downloadInProgress = new ConcurrentHashMap<>();
-        }
-        if (cache.containsKey(address)) {
-            return cache.get(address);
-        }
-        if (downloadInProgress.containsKey(address)) {
-            while (true) {
-                if (downloadInProgress.get(address).isBefore(DateTime.now().minusMinutes(1))) {
-                    downloadInProgress.remove(address);
-                    break;
+        if (cache == null || downloadInProgress == null) {
+            synchronized (Downloader.class){
+                if (cache == null) {
+                    cache = new ConcurrentHashMap<>();
                 }
-                if (cache.containsKey(address)) {
-                    return cache.get(address);
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
+                if (downloadInProgress == null) {
+                    downloadInProgress = new ConcurrentHashMap<>();
                 }
             }
         }
-        downloadInProgress.put(address, DateTime.now());
-        System.out.println(address);
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(address.openStream())
-        );
-        String inputLine;
-        String result = "";
-        while ((inputLine = in.readLine()) != null) {
-            result += inputLine;
+        avoidDuplicateDownloads(url);
+        if (cache.containsKey(url)) {
+            return cache.get(url);
         }
-        in.close();
-        cache.put(address, result);
-        return result;
+        downloadInProgress.put(url, DateTime.now());
+        System.out.println(url);
+        StringBuilder result = new StringBuilder();
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(new URL(url).openStream())
+        )){
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                result.append(inputLine);
+            }
+        }
+        cache.put(url, result.toString());
+        return result.toString();
     }
 }
