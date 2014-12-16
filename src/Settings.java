@@ -3,68 +3,81 @@ import utils.FormatLibrary;
 
 import javax.swing.*;
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.Properties;
 import java.util.prefs.InvalidPreferencesFormatException;
 
 class Settings {
     private JPanel window;
-    private double lat = 0;
-    private double lon = 0;
-    private double maxDistance = 40;
-    private Coordinate location;
+    static final String SETTINGS_FILENAME = "go_outside.settings";
+    private Option latitude;
+    private Option longitude;
+    private Option distance;
 
     Settings() throws IOException, InvalidPreferencesFormatException {
-        String settingsFilename = "go_outside.settings";
-        File file = new File(settingsFilename);
         try {
-            if (file.exists()) {
-                Properties q = new Properties();
-                q.load(new FileReader(settingsFilename));
-                this.lat = Double.parseDouble(q.getProperty("latitude"));
-                this.lon = Double.parseDouble(q.getProperty("longitude"));
-                this.maxDistance = Double.parseDouble(q.getProperty("distance"));
-            } else {
+            File file = new File(SETTINGS_FILENAME);
+            if (!file.exists()) {
                 Properties p = new Properties();
-                p.setProperty("latitude", Double.toString(this.lat));
-                p.setProperty("longitude", Double.toString(this.lon));
-                p.setProperty("distance", Double.toString(this.maxDistance));
-                Writer test = new FileWriter(settingsFilename);
+                p.setProperty("latitude", Double.toString(0));
+                p.setProperty("longitude", Double.toString(0));
+                p.setProperty("distance", Double.toString(40));
+                Writer test = new FileWriter(SETTINGS_FILENAME);
                 p.store(test, "settings for go_outside program");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new IOException(e);
-        } catch (NumberFormatException | NullPointerException e){
+        } catch (NullPointerException e){
             e.printStackTrace();
             throw new InvalidPreferencesFormatException(e);
-        }
-        finally {
-            this.location = new Coordinate(this.lat, this.lon);
         }
         this.window = this.panelMaker();
     }
 
-    private JPanel panelMaker(){
+    class Option{
+        private JPanel segment;
+        private String name;
+        private Double value;
+        public JPanel getSegment() {
+            return this.segment;
+        }
+        Option(String nameParam, String labelName, DecimalFormat format) throws IOException, InvalidPreferencesFormatException {
+            this.name = nameParam;
+            this.segment = new JPanel();
+            this.value = null;
+            JLabel label = new JLabel(labelName);
+            JTextField input = new JTextField(format.format(this.getValue()));
+            input.setColumns(5);
+            this.segment.add(label);
+            this.segment.add(input);
+        }
+        public double getValue() throws IOException, InvalidPreferencesFormatException {
+            if(this.value != null){
+                return this.value;
+            }
+            Properties q = new Properties();
+            q.load(new FileReader(SETTINGS_FILENAME));
+            String retrieved = q.getProperty(this.name);
+            if (retrieved == null){
+                throw new InvalidPreferencesFormatException("settings file cannot be parsed by Properties class");
+            }
+            this.value = Double.parseDouble(retrieved);
+            return this.value;
+        }
+    }
+
+    private JPanel panelMaker() throws IOException, InvalidPreferencesFormatException {
         JPanel produced = new JPanel();
-        JPanel locationSettings = new JPanel();
-        JLabel latitudeLabel = new JLabel("latitude");
-        JTextField latitudeInput = new JTextField(FormatLibrary.geographicCoordinate().format(this.location.lat));
-        JLabel longitudeLabel = new JLabel("longitude");
-        JTextField longitudeInput = new JTextField(FormatLibrary.geographicCoordinate().format(this.location.lon));
-        latitudeInput.setColumns(5);
-        longitudeInput.setColumns(5);
-        locationSettings.add(latitudeLabel);
-        locationSettings.add(latitudeInput);
-        locationSettings.add(longitudeLabel);
-        locationSettings.add(longitudeInput);
-        JPanel rangeSettings = new JPanel();
-        JLabel rangeLabel = new JLabel("range [km]");
-        JTextField rangeInput = new JTextField(Double.toString(this.maxDistance));
-        rangeInput.setColumns(5);
-        rangeSettings.add(rangeLabel);
-        rangeSettings.add(rangeInput);
-        produced.add(locationSettings);
-        produced.add(rangeSettings);
+        //JLabel rangeLabel = new JLabel();
+        JPanel positionPanel = new JPanel();
+        JPanel distancePanel = new JPanel();
+        this.latitude = new Option("latitude", "latitude",FormatLibrary.geographicCoordinate());
+        positionPanel.add(this.latitude.getSegment());
+        this.longitude = new Option("longitude", "longitude",FormatLibrary.geographicCoordinate());
+        positionPanel.add(this.longitude.getSegment());
+        this.distance = new Option("distance", "range [km]", new DecimalFormat("0"));
+        distancePanel.add(this.distance.getSegment());
+        produced.add(positionPanel);
+        produced.add(distancePanel);
+        produced.add(new JButton("save"));
         return produced;
     }
 
@@ -72,11 +85,11 @@ class Settings {
         return this.window;
     }
 
-    public Coordinate getLocation() {
-        return new Coordinate(this.lat, this.lon);
+    public Coordinate getLocation() throws IOException, InvalidPreferencesFormatException {
+        return new Coordinate(this.latitude.getValue(), this.longitude.getValue());
     }
 
-    public double getMaxDistance() {
-        return this.maxDistance;
+    public double getMaxDistance() throws IOException, InvalidPreferencesFormatException {
+        return this.distance.getValue();
     }
 }
