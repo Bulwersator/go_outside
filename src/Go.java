@@ -37,18 +37,16 @@ class Go extends JDialog {
         //window.setUndecorated(true);
         //window.setResizable(false);
         this.window.setAlwaysOnTop(true);
-        Settings settings = null;
         try {
-            settings = new Settings();
+            Settings settings = new Settings();
+            this.window.add(settings.getJPanel());
+            this.window.add(new JSeparator());
+            this.window.add(new GeohashDisplayPanel(settings.getLocation(), settings.getMaxDistance()));
         } catch (IOException ignored) {
             this.showWarning("Opening of options file failed.");
         } catch (InvalidPreferencesFormatException ignored) {
             this.showWarning("Processing of options file failed.");
         }
-        assert settings != null;
-        this.window.add(settings.getJPanel());
-        this.window.add(new JSeparator());
-        this.window.add(new GeohashDisplayPanel(settings.getLocation(), settings.getMaxDistance()));
         this.window.getContentPane().setLayout(new BoxLayout(this.window.getContentPane(), BoxLayout.PAGE_AXIS));
         this.window.setMinimumSize(new Dimension(300, 100));
         this.window.pack();
