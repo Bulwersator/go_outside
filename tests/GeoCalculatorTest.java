@@ -1,17 +1,18 @@
+import org.junit.Test;
 import utils.GeoCalculator;
 
 import static org.junit.Assert.*;
 
 public class GeoCalculatorTest {
-    @org.junit.Test
+    @Test
     public void testGetDistanceBetweenCoordinates() throws Exception {
-        double almostZero = 1/1000; //1 m error is perfectly acceptable
+        double almostZeroInKilometers = 1.0/1000; //1 m error is perfectly acceptable
 
         String distanceToItself = "point has 0 distance to itself";
         for(int i = 0; i<1000; i++){
             double lat = Math.random() * 180 - 90;
             double lon = Math.random() * 180 - 90;
-            assertEquals(distanceToItself, 0, GeoCalculator.getDistanceBetweenCoordinates(lat, lon, lat, lon), almostZero);
+            assertEquals(distanceToItself, 0, GeoCalculator.getDistanceBetweenCoordinates(lat, lon, lat, lon), almostZeroInKilometers);
         }
 
         double distance;
