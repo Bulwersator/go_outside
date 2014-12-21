@@ -2,19 +2,26 @@ import utils.Coordinate;
 import utils.FormatLibrary;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.text.DecimalFormat;
 import java.util.Properties;
 import java.util.prefs.InvalidPreferencesFormatException;
 
-class Settings {
+class Settings implements ActionListener {
     private JPanel window;
     static final String SETTINGS_FILENAME = "go_outside.settings";
     private Double latitude;
     private Double longitude;
     private Double distance;
+    OptionSegment latitudePanelOption;
+    OptionSegment longitudePanelOption;
+    OptionSegment distancePanelOption;
+    boolean dirty;
 
     Settings() throws IOException, InvalidPreferencesFormatException {
+        this.dirty = false;
         try {
             File file = new File(SETTINGS_FILENAME);
             if (file.exists()) {
@@ -25,7 +32,7 @@ class Settings {
                 this.latitude = 0.0;
                 this.longitude = 0.0;
                 this.distance = 40.0;
-                this.saveSettingsFile();
+                this.saveSettingsToFile();
             }
         } catch (NullPointerException e){
             e.printStackTrace();
@@ -44,7 +51,7 @@ class Settings {
         return Double.parseDouble(retrieved);
     }
 
-    private void saveSettingsFile() throws IOException {
+    private void saveSettingsToFile() throws IOException {
         Properties p = new Properties();
         p.setProperty("latitude", String.valueOf(this.latitude));
         p.setProperty("longitude", String.valueOf(this.longitude));
@@ -53,20 +60,39 @@ class Settings {
         p.store(test, "settings for go_outside program");
     }
 
-    class Option{
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if ("save".equals(e.getActionCommand())) {
+            try {
+                this.latitude = this.latitudePanelOption.getValue();
+                this.longitude = this.longitudePanelOption.getValue();
+                this.distance = this.distancePanelOption.getValue();
+                this.saveSettingsToFile();
+                this.dirty = true; //TODO - redraw stuff
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                //TODDO handle this properly
+            }
+        }
+    }
+
+    class OptionSegment{
         private JPanel segment;
-        private Double value;
+        private JTextField input;
         public JPanel getSegment() {
             return this.segment;
         }
-        Option(String labelName, Double settingValue, DecimalFormat format) throws IOException, InvalidPreferencesFormatException {
+        OptionSegment(String labelName, Double settingValue, DecimalFormat format) throws IOException, InvalidPreferencesFormatException {
             this.segment = new JPanel();
-            this.value = null;
             JLabel label = new JLabel(labelName);
-            JTextField input = new JTextField(format.format(settingValue));
-            input.setColumns(5);
+            this.input = new JTextField(format.format(settingValue));
+            this.input.setColumns(5);
             this.segment.add(label);
-            this.segment.add(input);
+            this.segment.add(this.input);
+        }
+
+        public Double getValue() {
+            return new Double(this.input.getText());
         }
     }
 
@@ -75,15 +101,17 @@ class Settings {
         //JLabel rangeLabel = new JLabel();
         JPanel positionPanel = new JPanel();
         JPanel distancePanel = new JPanel();
-        Option latitudePanelOption = new Option("latitude", this.latitude, FormatLibrary.geographicCoordinate());
-        positionPanel.add(latitudePanelOption.getSegment());
-        Option longitudePanelOption = new Option("longitude", this.longitude, FormatLibrary.geographicCoordinate());
-        positionPanel.add(longitudePanelOption.getSegment());
-        Option distanceOption = new Option("range [km]", this.distance, new DecimalFormat("0"));
-        distancePanel.add(distanceOption.getSegment());
+        this.latitudePanelOption = new OptionSegment("latitude", this.latitude, FormatLibrary.geographicCoordinate());
+        positionPanel.add(this.latitudePanelOption.getSegment());
+        this.longitudePanelOption = new OptionSegment("longitude", this.longitude, FormatLibrary.geographicCoordinate());
+        positionPanel.add(this.longitudePanelOption.getSegment());
+        this.distancePanelOption = new OptionSegment("range [km]", this.distance, new DecimalFormat("0"));
+        distancePanel.add(this.distancePanelOption.getSegment());
         produced.add(positionPanel);
         produced.add(distancePanel);
-        produced.add(new JButton("save"));
+        JButton save = new JButton("save");
+        save.addActionListener(this);
+        produced.add(save);
         return produced;
     }
 
