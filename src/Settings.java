@@ -10,15 +10,22 @@ import java.util.prefs.InvalidPreferencesFormatException;
 class Settings {
     private JPanel window;
     static final String SETTINGS_FILENAME = "go_outside.settings";
-    private Option latitude;
-    private Option longitude;
-    private Option distance;
+    private Double latitude;
+    private Double longitude;
+    private Double distance;
 
     Settings() throws IOException, InvalidPreferencesFormatException {
         try {
             File file = new File(SETTINGS_FILENAME);
-            if (!file.exists()) {
-                makeDefaultSettingsFile();
+            if (file.exists()) {
+                this.latitude = Settings.getSetting("latitude");
+                this.longitude = Settings.getSetting("longitude");
+                this.distance = Settings.getSetting("distance");
+            } else {
+                this.latitude = 0.0;
+                this.longitude = 0.0;
+                this.distance = 40.0;
+                this.saveSettingsFile();
             }
         } catch (NullPointerException e){
             e.printStackTrace();
@@ -27,44 +34,39 @@ class Settings {
         this.window = this.panelMaker();
     }
 
-    private static void makeDefaultSettingsFile() throws IOException {
+    private static Double getSetting(String name) throws IOException, InvalidPreferencesFormatException {
+        Properties q = new Properties();
+        q.load(new FileReader(SETTINGS_FILENAME));
+        String retrieved = q.getProperty(name);
+        if (retrieved == null){
+            throw new InvalidPreferencesFormatException("settings file cannot be parsed by Properties class");
+        }
+        return Double.parseDouble(retrieved);
+    }
+
+    private void saveSettingsFile() throws IOException {
         Properties p = new Properties();
-        p.setProperty("latitude", Double.toString(0));
-        p.setProperty("longitude", Double.toString(0));
-        p.setProperty("distance", Double.toString(40));
+        p.setProperty("latitude", String.valueOf(this.latitude));
+        p.setProperty("longitude", String.valueOf(this.longitude));
+        p.setProperty("distance", String.valueOf(this.distance));
         Writer test = new FileWriter(SETTINGS_FILENAME);
         p.store(test, "settings for go_outside program");
     }
 
     class Option{
         private JPanel segment;
-        private String name;
         private Double value;
         public JPanel getSegment() {
             return this.segment;
         }
-        Option(String nameParam, String labelName, DecimalFormat format) throws IOException, InvalidPreferencesFormatException {
-            this.name = nameParam;
+        Option(String labelName, Double settingValue, DecimalFormat format) throws IOException, InvalidPreferencesFormatException {
             this.segment = new JPanel();
             this.value = null;
             JLabel label = new JLabel(labelName);
-            JTextField input = new JTextField(format.format(this.getValue()));
+            JTextField input = new JTextField(format.format(settingValue));
             input.setColumns(5);
             this.segment.add(label);
             this.segment.add(input);
-        }
-        public double getValue() throws IOException, InvalidPreferencesFormatException {
-            if(this.value != null){
-                return this.value;
-            }
-            Properties q = new Properties();
-            q.load(new FileReader(SETTINGS_FILENAME));
-            String retrieved = q.getProperty(this.name);
-            if (retrieved == null){
-                throw new InvalidPreferencesFormatException("settings file cannot be parsed by Properties class");
-            }
-            this.value = Double.parseDouble(retrieved);
-            return this.value;
         }
     }
 
@@ -73,12 +75,12 @@ class Settings {
         //JLabel rangeLabel = new JLabel();
         JPanel positionPanel = new JPanel();
         JPanel distancePanel = new JPanel();
-        this.latitude = new Option("latitude", "latitude", FormatLibrary.geographicCoordinate());
-        positionPanel.add(this.latitude.getSegment());
-        this.longitude = new Option("longitude", "longitude", FormatLibrary.geographicCoordinate());
-        positionPanel.add(this.longitude.getSegment());
-        this.distance = new Option("distance", "range [km]", new DecimalFormat("0"));
-        distancePanel.add(this.distance.getSegment());
+        Option latitudePanelOption = new Option("latitude", this.latitude, FormatLibrary.geographicCoordinate());
+        positionPanel.add(latitudePanelOption.getSegment());
+        Option longitudePanelOption = new Option("longitude", this.longitude, FormatLibrary.geographicCoordinate());
+        positionPanel.add(longitudePanelOption.getSegment());
+        Option distanceOption = new Option("range [km]", this.distance, new DecimalFormat("0"));
+        distancePanel.add(distanceOption.getSegment());
         produced.add(positionPanel);
         produced.add(distancePanel);
         produced.add(new JButton("save"));
@@ -90,10 +92,10 @@ class Settings {
     }
 
     public Coordinate getLocation() throws IOException, InvalidPreferencesFormatException {
-        return new Coordinate(this.latitude.getValue(), this.longitude.getValue());
+        return new Coordinate(this.latitude, this.longitude);
     }
 
     public double getMaxDistance() throws IOException, InvalidPreferencesFormatException {
-        return this.distance.getValue();
+        return this.distance;
     }
 }
