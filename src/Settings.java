@@ -18,18 +18,22 @@ class Settings {
         try {
             File file = new File(SETTINGS_FILENAME);
             if (!file.exists()) {
-                Properties p = new Properties();
-                p.setProperty("latitude", Double.toString(0));
-                p.setProperty("longitude", Double.toString(0));
-                p.setProperty("distance", Double.toString(40));
-                Writer test = new FileWriter(SETTINGS_FILENAME);
-                p.store(test, "settings for go_outside program");
+                makeDefaultSettingsFile();
             }
         } catch (NullPointerException e){
             e.printStackTrace();
             throw new InvalidPreferencesFormatException(e);
         }
         this.window = this.panelMaker();
+    }
+
+    private static void makeDefaultSettingsFile() throws IOException {
+        Properties p = new Properties();
+        p.setProperty("latitude", Double.toString(0));
+        p.setProperty("longitude", Double.toString(0));
+        p.setProperty("distance", Double.toString(40));
+        Writer test = new FileWriter(SETTINGS_FILENAME);
+        p.store(test, "settings for go_outside program");
     }
 
     class Option{
