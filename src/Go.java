@@ -50,7 +50,7 @@ class Go extends JDialog {
         this.window.getContentPane().setLayout(new BoxLayout(this.window.getContentPane(), BoxLayout.PAGE_AXIS));
         this.window.setMinimumSize(new Dimension(300, 100));
         this.window.pack();
-        //TODO - assumes bottom or right position of system taskbar
+        //TODO - assumes bottom and right position of system taskbar
         this.window.setLocation(availableScreenWidth - this.window.getWidth(), availableScreenHeight - this.window.getHeight());
         this.window.setVisible(true);
     }
