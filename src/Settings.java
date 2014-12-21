@@ -73,9 +73,9 @@ class Settings {
         //JLabel rangeLabel = new JLabel();
         JPanel positionPanel = new JPanel();
         JPanel distancePanel = new JPanel();
-        this.latitude = new Option("latitude", "latitude",FormatLibrary.geographicCoordinate());
+        this.latitude = new Option("latitude", "latitude", FormatLibrary.geographicCoordinate());
         positionPanel.add(this.latitude.getSegment());
-        this.longitude = new Option("longitude", "longitude",FormatLibrary.geographicCoordinate());
+        this.longitude = new Option("longitude", "longitude", FormatLibrary.geographicCoordinate());
         positionPanel.add(this.longitude.getSegment());
         this.distance = new Option("distance", "range [km]", new DecimalFormat("0"));
         distancePanel.add(this.distance.getSegment());
