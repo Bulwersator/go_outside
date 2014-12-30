@@ -9,8 +9,7 @@ import java.text.DecimalFormat;
 import java.util.Properties;
 import java.util.prefs.InvalidPreferencesFormatException;
 
-class Settings implements ActionListener {
-    private JPanel window;
+class Settings extends JPanel implements ActionListener {
     static final String SETTINGS_FILENAME = "go_outside.settings";
     private Double latitude;
     private Double longitude;
@@ -38,7 +37,7 @@ class Settings implements ActionListener {
             e.printStackTrace();
             throw new InvalidPreferencesFormatException(e);
         }
-        this.window = this.panelMaker();
+        this.panelMaker();
     }
 
     private static Double getSetting(String name) throws IOException, InvalidPreferencesFormatException {
@@ -76,7 +75,7 @@ class Settings implements ActionListener {
         }
     }
 
-    class OptionSegment{
+    class OptionSegment implements Serializable{
         private JPanel segment;
         private JTextField input;
         public JPanel getSegment() {
@@ -96,8 +95,7 @@ class Settings implements ActionListener {
         }
     }
 
-    private JPanel panelMaker() throws IOException, InvalidPreferencesFormatException {
-        JPanel produced = new JPanel();
+    private void panelMaker() throws IOException, InvalidPreferencesFormatException {
         //JLabel rangeLabel = new JLabel();
         JPanel positionPanel = new JPanel();
         JPanel distancePanel = new JPanel();
@@ -107,19 +105,14 @@ class Settings implements ActionListener {
         positionPanel.add(this.longitudePanelOption.getSegment());
         this.distancePanelOption = new OptionSegment("range [km]", this.distance, new DecimalFormat("0"));
         distancePanel.add(this.distancePanelOption.getSegment());
-        produced.add(positionPanel);
-        produced.add(distancePanel);
+        this.add(positionPanel);
+        this.add(distancePanel);
         JButton save = new JButton("save");
         save.addActionListener(this);
-        produced.add(save);
-        return produced;
+        this.add(save);
     }
 
-    public JPanel getJPanel() {
-        return this.window;
-    }
-
-    public Coordinate getLocation() throws IOException, InvalidPreferencesFormatException {
+    public Coordinate getGeographicCoordinate() throws IOException, InvalidPreferencesFormatException {
         return new Coordinate(this.latitude, this.longitude);
     }
 

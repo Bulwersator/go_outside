@@ -36,9 +36,9 @@ class Go extends JDialog {
         this.setAlwaysOnTop(true);
         try {
             Settings settings = new Settings();
-            this.add(settings.getJPanel());
+            this.add(settings);
             this.add(new JSeparator());
-            this.add(new GeohashDisplayPanel(settings.getLocation(), settings.getMaxDistance()));
+            this.add(new GeohashDisplayPanel(settings.getGeographicCoordinate(), settings.getMaxDistance()));
         } catch (IOException ignored) {
             this.showWarning("Opening of options file failed.");
         } catch (InvalidPreferencesFormatException ignored) {
