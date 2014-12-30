@@ -15,43 +15,40 @@ class Go extends JDialog {
         });
     }
 
-    private JDialog window;
-
     /**
      * Displays warning dialog
      *
      * @param text - message displayed to user
      */
     private void showWarning(String text) {
-        JOptionPane.showMessageDialog(this.window,
+        JOptionPane.showMessageDialog(this,
                 text,
                 "Ooops",
                 JOptionPane.WARNING_MESSAGE);
     }
 
     private Go() {
-        this.window = new JDialog();
         Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
         int availableScreenWidth = winSize.width;
         int availableScreenHeight = winSize.height;
         //window.setUndecorated(true);
         //window.setResizable(false);
-        this.window.setAlwaysOnTop(true);
+        this.setAlwaysOnTop(true);
         try {
             Settings settings = new Settings();
-            this.window.add(settings.getJPanel());
-            this.window.add(new JSeparator());
-            this.window.add(new GeohashDisplayPanel(settings.getLocation(), settings.getMaxDistance()));
+            this.add(settings.getJPanel());
+            this.add(new JSeparator());
+            this.add(new GeohashDisplayPanel(settings.getLocation(), settings.getMaxDistance()));
         } catch (IOException ignored) {
             this.showWarning("Opening of options file failed.");
         } catch (InvalidPreferencesFormatException ignored) {
             this.showWarning("Processing of options file failed.");
         }
-        this.window.getContentPane().setLayout(new BoxLayout(this.window.getContentPane(), BoxLayout.PAGE_AXIS));
-        this.window.setMinimumSize(new Dimension(300, 100));
-        this.window.pack();
+        this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
+        this.setMinimumSize(new Dimension(300, 100));
+        this.pack();
         //TODO - assumes bottom and right position of system taskbar
-        this.window.setLocation(availableScreenWidth - this.window.getWidth(), availableScreenHeight - this.window.getHeight());
-        this.window.setVisible(true);
+        this.setLocation(availableScreenWidth - this.getWidth(), availableScreenHeight - this.getHeight());
+        this.setVisible(true);
     }
 }
