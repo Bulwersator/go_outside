@@ -36,8 +36,8 @@ public class Globalhash extends GenericGeohashLogic {
     @Override
     protected void processExistingData(Coordinate rawHashCoordinates) {
         double lat, lon;
-        lat = 180 * rawHashCoordinates.lat - 90;
-        lon = 360 * rawHashCoordinates.lon - 180;
+        lat = 180 * rawHashCoordinates.latitude - 90;
+        lon = 360 * rawHashCoordinates.longitude - 180;
         this.generatedLocation = new Coordinate(lat, lon);
     }
 

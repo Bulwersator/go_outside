@@ -3,19 +3,21 @@ package utils;
 import java.io.Serializable;
 
 public class Coordinate implements Serializable {
-    public double lat;
-    public double lon;
+    public double latitude;
+    public double longitude;
 
-    public Coordinate(double latPara, double lonPara) {
-        this.lat = latPara;
-        this.lon = lonPara;
+    public Coordinate(double latitude, double longitude) {
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     @Override
     public String toString() {
         return "Coordinate{" +
-                "lat=" + this.lat +
-                ", lon=" + this.lon +
+                "latitude=" + this.latitude +
+                ", longitude=" + this.longitude +
                 '}';
     }
+
+
 }

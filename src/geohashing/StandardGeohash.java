@@ -27,14 +27,14 @@ public class StandardGeohash extends GenericGeohashLogic {
     protected void processExistingData(Coordinate rawHashCoordinates) {
         double lat, lon;
         if (this.graticuleLat < 0) {
-            lat = this.graticuleLat - rawHashCoordinates.lat;
+            lat = this.graticuleLat - rawHashCoordinates.latitude;
         } else {
-            lat = this.graticuleLat + rawHashCoordinates.lat;
+            lat = this.graticuleLat + rawHashCoordinates.latitude;
         }
         if (this.graticuleLon < 0) {
-            lon = this.graticuleLon - rawHashCoordinates.lon;
+            lon = this.graticuleLon - rawHashCoordinates.longitude;
         } else {
-            lon = this.graticuleLon + rawHashCoordinates.lon;
+            lon = this.graticuleLon + rawHashCoordinates.longitude;
         }
         this.generatedLocation = new Coordinate(lat, lon);
     }

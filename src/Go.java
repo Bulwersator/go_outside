@@ -1,9 +1,5 @@
-import geohashing.GeohashDisplayPanel;
-
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.util.prefs.InvalidPreferencesFormatException;
 
 class Go extends JDialog {
     public static void main(String[] args) {
@@ -34,16 +30,11 @@ class Go extends JDialog {
         //window.setUndecorated(true);
         //window.setResizable(false);
         this.setAlwaysOnTop(true);
-        try {
-            Settings settings = new Settings();
-            this.add(settings);
-            this.add(new JSeparator());
-            this.add(new GeohashDisplayPanel(settings.getGeographicCoordinate(), settings.getMaxDistance()));
-        } catch (IOException ignored) {
-            this.showWarning("Opening of options file failed.");
-        } catch (InvalidPreferencesFormatException ignored) {
-            this.showWarning("Processing of options file failed.");
-        }
+        SettingsModel model = new SettingsModel();
+        SettingsPanel settings = new SettingsPanel(model);
+        this.add(settings);
+        this.add(new JSeparator());
+        this.add(new GeohashDisplayPanel(model));
         this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.PAGE_AXIS));
         this.setMinimumSize(new Dimension(300, 100));
         this.pack();

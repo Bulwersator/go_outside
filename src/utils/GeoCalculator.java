@@ -7,7 +7,7 @@ public final class GeoCalculator {
     }
 
     public static double getDistanceBetweenCoordinates(Coordinate loc1, Coordinate loc2) {
-        return getDistanceBetweenCoordinates(loc1.lat, loc1.lon, loc2.lat, loc2.lon);
+        return getDistanceBetweenCoordinates(loc1.latitude, loc1.longitude, loc2.latitude, loc2.longitude);
     }
 
     /**

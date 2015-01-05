@@ -1,33 +1,48 @@
-package geohashing;
-
 import org.joda.time.DateTime;
 import utils.Coordinate;
 import utils.FormatLibrary;
 import utils.GeoCalculator;
+import geohashing.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.ExecutionException;
 
-public class GeohashDisplayPanel extends JPanel implements ActionListener {
-    private final Coordinate observerLocation;
-    private final double maxDistance;
+
+public class GeohashDisplayPanel extends JPanel implements ActionListener, Observer{
+    private Coordinate observerLocation;
     private int graticuleLat;
     private int graticuleLon;
     private DateTime date;
     private HashpointInfoArea hashpointInformationPanel;
     private JProgressBar progressBar;
     private HashpointInfoArea globalhashInformationPanel;
+    private SettingsModel model;
+
+    @Override
+    public void update(Observable o, Object arg) {
+        this.observerLocation = model.getLocation();
+        this.graticuleLat = (int) Math.round(this.observerLocation.latitude);
+        this.graticuleLon = (int) Math.round(this.observerLocation.longitude);
+        this.hashpointInformationPanel.distanceAllowed = model.getMinorDistance();
+        this.globalhashInformationPanel.distanceAllowed = model.getMinorDistance();
+        (new GeohashLoader(new StandardGeohashFactory(), this.hashpointInformationPanel)).execute();
+        (new GeohashLoader(new GlobalhashFactory(), this.globalhashInformationPanel)).execute();
+    }
 
     private class HashpointInfoArea extends JTextArea {
         GenericGeohashLogic data;
+        double distanceAllowed;
 
-        HashpointInfoArea() {
+        HashpointInfoArea(double distance) {
             this.setLineWrap(true);
             this.setWrapStyleWord(true);
             this.setRows(4);
             this.data = null;
+            this.distanceAllowed = distance;
         }
 
         boolean setNewData(GenericGeohashLogic newData) {
@@ -49,32 +64,36 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener {
             Double distance = GeoCalculator.getDistanceBetweenCoordinates(this.data.getHashCoordinate(), GeohashDisplayPanel.this.observerLocation);
             distanceDescription += Math.round(distance);
             distanceDescription += " km";
-            if (GeohashDisplayPanel.this.maxDistance > distance) {
+            if (this.distanceAllowed > distance) {
                 distanceDescription += System.lineSeparator();
-                distanceDescription += "within range of " + GeohashDisplayPanel.this.maxDistance + " km";
+                distanceDescription += "within range of " + this.distanceAllowed + " km";
             }
             this.setText(baseDescription + System.lineSeparator() + distanceDescription);
         }
     }
 
-    public GeohashDisplayPanel(Coordinate observerLocationParam, double maxDistanceParam) {
+    public GeohashDisplayPanel(SettingsModel model) {
+        this.model = model;
+        this.model.addObserver(this);
         this.date = new DateTime();
         this.progressBar = new JProgressBar();
-        this.observerLocation = observerLocationParam;
-        this.graticuleLat = (int) Math.round(this.observerLocation.lat);
-        this.graticuleLon = (int) Math.round(this.observerLocation.lon);
-        this.maxDistance = maxDistanceParam;
+        this.observerLocation = model.getLocation();
+        this.graticuleLat = (int) Math.round(this.observerLocation.latitude);
+        this.graticuleLon = (int) Math.round(this.observerLocation.longitude);
+        buildPanel();
+    }
 
+    public void buildPanel(){
         this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
         JPanel hashpointTitleLabel = new JPanel();
         hashpointTitleLabel.add(new JLabel("hashpoint info"));
-        this.hashpointInformationPanel = new HashpointInfoArea();
+        this.hashpointInformationPanel = new HashpointInfoArea(this.model.getMinorDistance());
         this.add(hashpointTitleLabel);
         this.add(this.hashpointInformationPanel);
 
         JPanel globalhashTitleLabel = new JPanel();
         globalhashTitleLabel.add(new JLabel("globalhash info"));
-        this.globalhashInformationPanel = new HashpointInfoArea();
+        this.globalhashInformationPanel = new HashpointInfoArea(this.model.getMajorDistance());
         this.add(globalhashTitleLabel);
         this.add(this.globalhashInformationPanel);
 

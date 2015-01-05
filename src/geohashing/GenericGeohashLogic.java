@@ -103,11 +103,11 @@ public abstract class GenericGeohashLogic implements Serializable {
     }
 
     public final double getHashLat() {
-        return this.generatedLocation.lat;
+        return this.generatedLocation.latitude;
     }
 
     public final double getHashLon() {
-        return this.generatedLocation.lon;
+        return this.generatedLocation.longitude;
     }
 
     public final Coordinate getHashCoordinate() {
