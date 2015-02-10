@@ -28,7 +28,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener, Obser
         this.graticuleLat = (int) Math.round(this.observerLocation.latitude);
         this.graticuleLon = (int) Math.round(this.observerLocation.longitude);
         this.hashpointInformationPanel.distanceAllowed = model.getMinorDistance();
-        this.globalhashInformationPanel.distanceAllowed = model.getMinorDistance();
+        this.globalhashInformationPanel.distanceAllowed = model.getMajorDistance();
         (new GeohashLoader(new StandardGeohashFactory(), this.hashpointInformationPanel)).execute();
         (new GeohashLoader(new GlobalhashFactory(), this.globalhashInformationPanel)).execute();
     }
