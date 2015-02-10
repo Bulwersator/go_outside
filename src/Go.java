@@ -1,7 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.Observable;
+import java.util.Observer;
 
-class Go extends JDialog {
+class Go extends JDialog implements Observer {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -23,6 +25,8 @@ class Go extends JDialog {
                 JOptionPane.WARNING_MESSAGE);
     }
 
+    SettingsModel model;
+
     private Go() {
         Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
         int availableScreenWidth = winSize.width;
@@ -30,7 +34,7 @@ class Go extends JDialog {
         //window.setUndecorated(true);
         //window.setResizable(false);
         this.setAlwaysOnTop(true);
-        SettingsModel model = new SettingsModel();
+        model = new SettingsModel();
         SettingsPanel settings = new SettingsPanel(model);
         this.add(settings);
         this.add(new JSeparator());
@@ -40,6 +44,15 @@ class Go extends JDialog {
         this.pack();
         //TODO - assumes bottom and right position of system taskbar
         this.setLocation(availableScreenWidth - this.getWidth(), availableScreenHeight - this.getHeight());
-        this.setVisible(true);
+        model.addObserver(this);
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        if(model.getActivityState()){
+            this.setVisible(true);
+        } else {
+            this.setVisible(false);
+        }
     }
 }

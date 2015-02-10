@@ -67,6 +67,7 @@ public class GeohashDisplayPanel extends JPanel implements ActionListener, Obser
             if (this.distanceAllowed > distance) {
                 distanceDescription += System.lineSeparator();
                 distanceDescription += "within range of " + this.distanceAllowed + " km";
+                model.setActivityState(true);
             }
             this.setText(baseDescription + System.lineSeparator() + distanceDescription);
         }

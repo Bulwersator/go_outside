@@ -16,6 +16,9 @@ class SettingsModel extends Observable implements Serializable {
         private static final double DEFAULT_MINOR_DISTANCE = 30;
         private static final String MAJOR_DISTANCE_NAME = "major_distance";
         private static final double DEFAULT_MAJOR_DISTANCE = 100;
+        private static final String ACTIVITY_STATE_NAME = "acrivity_state";
+        private static final boolean DEFAULT_ACTIVITY_STATE = false;
+
 
         public static Coordinate getLocation() {
             double latitude = preferencesNode.getDouble(LATITUDE_NAME, DEFAULT_LATITUDE);
@@ -41,15 +44,24 @@ class SettingsModel extends Observable implements Serializable {
             preferencesNode.putDouble(MAJOR_DISTANCE_NAME, data);
         }
 
+        public static boolean getActivityState() {
+            return preferencesNode.getBoolean(ACTIVITY_STATE_NAME, DEFAULT_ACTIVITY_STATE);
+        }
+        public static void putActivityState(boolean data) {
+            preferencesNode.putBoolean(ACTIVITY_STATE_NAME, data);
+        }
     }
     private Coordinate location;
     private double minorDistance;
     private double majorDistance;
+    private boolean activityState;
 
     SettingsModel(){
         this.location = SettingsPersister.getLocation();
         this.minorDistance = SettingsPersister.getMinorDistace();
         this.majorDistance = SettingsPersister.getMajorDistace();
+        this.activityState = SettingsPersister.getActivityState();
+        this.setActivityState(false);
     }
 
     public Coordinate getLocation() {
@@ -90,6 +102,20 @@ class SettingsModel extends Observable implements Serializable {
         }
         this.majorDistance = majorDistance;
         SettingsPersister.putMajorDistace(majorDistance);
+        setChanged();
+        notifyObservers();
+    }
+
+    public boolean getActivityState() {
+        return activityState;
+    }
+
+    public void setActivityState(boolean activityState) {
+        if(this.activityState == activityState){
+            return;
+        }
+        this.activityState = activityState;
+        SettingsPersister.putActivityState(activityState);
         setChanged();
         notifyObservers();
     }
